@@ -1,0 +1,29 @@
+// Parsing rules
+compilationUnit := definitions expressions EOF
+
+definitions		:= definition*
+definition      := DEFTAG DEFINE IDENTIFIER EQUALS NUMBER NEXTOP
+
+expressions     := expression*
+expression		:= (instruction | label) NEXTOP
+				   
+instruction		:= IDENTIFIER (IDENTIFIER | NUMBER | taggedId)*
+label			:= LEFTBRACKET IDENTIFIER RIGHTBRACKET
+
+taggedId		:= defRef
+defRef			:= DEFTAG IDENTIFIER
+
+// Lexer rules
+DEFTAG 			:= "#"
+DEFINE			:= "define"
+EQUALS			:= "="
+LEFTBRACKET		:= "["
+RIGHTBRACKET	:= "]"
+
+IDENTIFIER		:= "[a-zA-Z][a-zA-Z0-9]*"
+NUMBER 			:= "[0-9](\.[0-9]+)?"
+
+NEXTOP			:= "[\n\r\f]+"
+EOF				:= "\Z"
+WHITESPACE		:= "[ \t]+" 	 -> ignore
+COMMENT			:= "//[^\r\n\f]*" -> ignore
