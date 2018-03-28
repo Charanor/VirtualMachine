@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
+import se.student.liu.jessp088.vm.Stack;
 import se.student.liu.jessp088.vm.exceptions.StackException;
 
 public class StackTest {

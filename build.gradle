@@ -1,0 +1,21 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+
+compileJava {
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+	testCompile "junit:junit:$junitVersion"
+}
+
+jar {
+	baseName = 'VirtualMachine'
+	version = '0.0.1-SNAPSHOT'
+}

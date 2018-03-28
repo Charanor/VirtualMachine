@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -19,6 +20,8 @@ import se.student.liu.jessp088.vm.parsing.exceptions.LexerException;
 import se.student.liu.jessp088.vm.parsing.exceptions.ParserException;
 
 public class TestExampleFile {
+	private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
+
 	@Test
 	public void test() {
 		final Lexer lexer = new Lexer();
@@ -27,14 +30,15 @@ public class TestExampleFile {
 		VirtualMachine.DEBUG = true;
 
 		try {
-			final String code = new String(Files.readAllBytes(Paths.get("test/example.vm")));
+			final String code = new String(
+					Files.readAllBytes(RESOURCE_DIRECTORY.resolve("count_primes.vm")));
 			final List<Token> tokens = lexer.tokenize(code);
 			final List<Instruction> instructions = parser.parse(tokens);
 			final boolean success = vm.execute(new Bytecode(instructions));
 			assertTrue(vm.getError(), success);
 			assertEquals(vm.getStack().pop(), 25); // 25 primes
 		} catch (IOException | LexerException | ParserException e) {
-			fail(e.getMessage());
+			fail(e.toString());
 		}
 	}
 }

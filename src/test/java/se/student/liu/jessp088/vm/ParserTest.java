@@ -1,7 +1,5 @@
 package se.student.liu.jessp088.vm;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static se.student.liu.jessp088.vm.parsing.TokenType.DEFINE;
 import static se.student.liu.jessp088.vm.parsing.TokenType.DEFTAG;
 import static se.student.liu.jessp088.vm.parsing.TokenType.EOF;
@@ -11,6 +9,8 @@ import static se.student.liu.jessp088.vm.parsing.TokenType.LEFTBRACKET;
 import static se.student.liu.jessp088.vm.parsing.TokenType.NEXTOP;
 import static se.student.liu.jessp088.vm.parsing.TokenType.NUMBER;
 import static se.student.liu.jessp088.vm.parsing.TokenType.RIGHTBRACKET;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;

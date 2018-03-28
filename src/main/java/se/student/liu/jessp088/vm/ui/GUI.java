@@ -4,9 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.PrintStream;
 import java.nio.file.Files;
 
 import javax.swing.ButtonGroup;
@@ -22,12 +20,9 @@ import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
-import se.student.liu.jessp088.vm.Bytecode;
 import se.student.liu.jessp088.vm.VirtualMachine;
 
 public class GUI {
-	private Preprocessor preprocessor;
-	private Compiler compiler;
 	private VirtualMachine vm;
 
 	private JFrame frame;
@@ -96,7 +91,6 @@ public class GUI {
 
 		final JMenuItem runOption = new JMenuItem("Run");
 		runOption.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK));
-		runOption.addActionListener(e -> runCode());
 		runMenu.add(runOption);
 
 		final JMenuItem debugOption = new JMenuItem("Debug");
@@ -146,30 +140,6 @@ public class GUI {
 		codeAndConsole = new CodeAndConsole();
 		codeAndConsole.setContinuousLayout(true);
 		frame.getContentPane().add(codeAndConsole, BorderLayout.CENTER);
-
-		preprocessor = new Preprocessor();
-		compiler = new Compiler(preprocessor);
-		vm = new VirtualMachine(128, 128, true);
-	}
-
-	private void runCode() {
-		final PrintStream original = System.out;
-
-		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		final PrintStream redirectStream = new PrintStream(baos);
-
-		System.out.println("Running code...");
-		System.setOut(redirectStream);
-
-		final String processed = preprocessor.process(codeAndConsole.getCode());
-		final Bytecode bytecode = compiler.compile(processed);
-		vm.execute(bytecode);
-
-		redirectStream.flush();
-		codeAndConsole.setConsole(baos.toString());
-		System.setOut(original);
-
-		System.out.println("End of running code...");
 	}
 
 }

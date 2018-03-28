@@ -9,6 +9,10 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import se.student.liu.jessp088.vm.Bytecode;
+import se.student.liu.jessp088.vm.Stack;
+import se.student.liu.jessp088.vm.Variables;
+import se.student.liu.jessp088.vm.VirtualMachine;
 import se.student.liu.jessp088.vm.instructions.Instruction;
 import se.student.liu.jessp088.vm.instructions.Literal;
 import se.student.liu.jessp088.vm.instructions.arithmetic.Sub;

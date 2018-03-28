@@ -15,7 +15,6 @@ import se.student.liu.jessp088.vm.parsing.TokenType;
 import se.student.liu.jessp088.vm.parsing.exceptions.LexerException;
 
 public class LexerTest {
-
 	private static Lexer lexer;
 
 	@BeforeClass
@@ -65,8 +64,7 @@ public class LexerTest {
 		} catch (final LexerException e) {
 			fail("Lexing of code " + builder.toString() + " failed! Reason: " + e.getMessage());
 		}
-		if (tokens != null)
-			tokens.forEach(t -> assertFalse(t.type.ignore));
+		if (tokens != null) tokens.forEach(t -> assertFalse(t.type.ignore));
 	}
 
 }
