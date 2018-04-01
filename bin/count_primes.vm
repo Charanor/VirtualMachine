@@ -11,7 +11,7 @@
 // }
 
 ////// Here is the bytecode
-#define END_VALUE = 0x64
+#define END_VALUE = 1000
 
 // Variable definitions
 #define n = 0x00

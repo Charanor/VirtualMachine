@@ -1,18 +1,17 @@
 package se.student.liu.jessp088.vm;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import se.student.liu.jessp088.vm.Bytecode;
-import se.student.liu.jessp088.vm.Stack;
-import se.student.liu.jessp088.vm.Variables;
-import se.student.liu.jessp088.vm.VirtualMachine;
+import se.student.liu.jessp088.vm.VirtualMachine.DebugListener;
+import se.student.liu.jessp088.vm.VirtualMachine.VMState;
 import se.student.liu.jessp088.vm.instructions.Instruction;
 import se.student.liu.jessp088.vm.instructions.Literal;
 import se.student.liu.jessp088.vm.instructions.arithmetic.Sub;
@@ -21,16 +20,12 @@ import se.student.liu.jessp088.vm.instructions.data.Load;
 import se.student.liu.jessp088.vm.instructions.data.Store;
 
 public class VMTest {
+
+	private Bytecode code;
 	private VirtualMachine vm;
 
 	@Before
-	public void setUp() throws Exception {
-		vm = new VirtualMachine(4, 128);
-		VirtualMachine.DEBUG = true;
-	}
-
-	@Test
-	public void testExecute() {
+	public void beforeClass() {
 		final List<Instruction> instructions = new ArrayList<>();
 		instructions.add(new Literal(5));
 		instructions.add(new Literal(4));
@@ -43,8 +38,17 @@ public class VMTest {
 		instructions.add(new Literal(55)); // 8
 		instructions.add(new Store(2));
 
-		final boolean success = vm.execute(new Bytecode(instructions));
-		assertTrue(vm.getError(), success);
+		final Map<Integer, Integer> map = new HashMap<>();
+		for (int i = 0; i < instructions.size(); i++)
+			map.put(i, i);
+		code = new Bytecode(instructions, map);
+		vm = new DefaultVirtualMachine(4, 128);
+	}
+
+	@Test
+	public void testExecute() {
+		vm.execute(code);
+		assertEquals(vm.getError(), VMState.END_SUCCESS, vm.getCurrentState());
 
 		final Stack s = vm.getStack();
 		final Variables v = vm.getVariables();
@@ -53,6 +57,129 @@ public class VMTest {
 		assertEquals(v.load(0), 1);
 		assertEquals(v.load(1), 0);
 		assertEquals(v.load(2), 55);
+	}
+
+	@Test
+	public void testPause() {
+		final DebugListener listener = new DebugListener() {
+			@Override
+			public void onStateChanged(final VirtualMachine vm) {
+			}
+
+			@Override
+			public void beforeInstruction(final VirtualMachine vm) {
+				vm.pauseExecution();
+			}
+
+			@Override
+			public void beforeExecution(final VirtualMachine vm) {
+			}
+
+			@Override
+			public void afterInstruction(final VirtualMachine vm) {
+			}
+
+			@Override
+			public void afterExecution(final VirtualMachine vm) {
+			}
+		};
+
+		vm.addDebugListener(listener);
+		vm.execute(code);
+
+		assertEquals(VMState.PAUSE_USER, vm.getCurrentState());
+		vm.removeDebugListener(listener);
+		vm.resumeExecution();
+		assertEquals(vm.getError(), VMState.END_SUCCESS, vm.getCurrentState());
+	}
+
+	@Test
+	public void testStop() {
+		final DebugListener listener = new DebugListener() {
+			@Override
+			public void onStateChanged(final VirtualMachine vm) {
+			}
+
+			@Override
+			public void beforeInstruction(final VirtualMachine vm) {
+				vm.stopExecution();
+			}
+
+			@Override
+			public void beforeExecution(final VirtualMachine vm) {
+			}
+
+			@Override
+			public void afterInstruction(final VirtualMachine vm) {
+			}
+
+			@Override
+			public void afterExecution(final VirtualMachine vm) {
+			}
+		};
+
+		vm.addDebugListener(listener);
+		vm.execute(code);
+
+		assertEquals(VMState.END_USER, vm.getCurrentState());
+		vm.removeDebugListener(listener); // Don't stop next time
+		vm.resumeExecution(); // Make sure resume does not actually resume
+		assertEquals(vm.getError(), VMState.END_USER, vm.getCurrentState());
+	}
+
+	@Test
+	public void testBreakpoint() {
+		vm.addBreakpoint(2);
+		vm.addBreakpoint(3);
+
+		vm.debug(code);
+
+		assertEquals(vm.getError(), VMState.PAUSE_BREAKPOINT, vm.getCurrentState());
+		System.out.println(vm.getCurrentInstruction());
+		final int shouldBe4 = vm.getStack().pop();
+		vm.getStack().push(shouldBe4);
+		assertEquals(4, shouldBe4);
+
+		vm.resumeExecution();
+		assertEquals(vm.getError(), VMState.PAUSE_BREAKPOINT, vm.getCurrentState());
+		final int shouldBe1 = vm.getStack().pop();
+		vm.getStack().push(shouldBe1);
+		assertEquals(1, shouldBe1);
+
+		vm.resumeExecution();
+		assertEquals(vm.getError(), VMState.END_SUCCESS, vm.getCurrentState());
+	}
+
+	@Test
+	public void testStopWhenPaused() {
+		vm.addDebugListener(new DebugListener() {
+
+			@Override
+			public void onStateChanged(final VirtualMachine vm) {
+			}
+
+			@Override
+			public void beforeInstruction(final VirtualMachine vm) {
+				vm.pauseExecution();
+			}
+
+			@Override
+			public void beforeExecution(final VirtualMachine vm) {
+			}
+
+			@Override
+			public void afterInstruction(final VirtualMachine vm) {
+			}
+
+			@Override
+			public void afterExecution(final VirtualMachine vm) {
+			}
+		});
+
+		vm.execute(code);
+		assertEquals(vm.getError(), VMState.PAUSE_USER, vm.getCurrentState());
+		vm.stopExecution();
+		assertEquals(vm.getError(), VMState.END_USER, vm.getCurrentState());
 	}
 
 }

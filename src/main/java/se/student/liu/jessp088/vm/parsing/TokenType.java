@@ -3,7 +3,7 @@ package se.student.liu.jessp088.vm.parsing;
 public enum TokenType {
 	WHITESPACE("[ \t]+", true),
 	COMMENT("//[^\r\n\f]*", true),
-	NEXTOP("[\r\n\f;]+"),
+	NEXTOP("(\r\n|\r|\n)"),
 	DEFTAG("#"),
 	DEFINE("define"),
 	EQUALS("="),
@@ -14,7 +14,7 @@ public enum TokenType {
 	EOF("\\Z"),
 
 	// ERROR MUST ALWAYS ALWAYS ALWAYS BE LAST
-	ERROR(".+"),;
+	ERROR(".+");
 
 	public final String pattern;
 	public final boolean ignore;

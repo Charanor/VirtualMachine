@@ -10,6 +10,12 @@ public class Variables {
 		variables = new int[maxSize];
 	}
 
+	public Variables(final Variables other) {
+		this.variables = new int[other.variables.length];
+		System.arraycopy(other.variables, 0, variables, 0, variables.length);
+		this.numVariables = other.numVariables;
+	}
+
 	public void store(final int idx, final int val) {
 		if (idx >= variables.length)
 			throw new IndexOutOfBoundsException("Trying to access variable at index " + idx

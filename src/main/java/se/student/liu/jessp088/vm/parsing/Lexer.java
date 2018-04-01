@@ -17,8 +17,7 @@ public class Lexer {
 		final Matcher matcher = patterns.matcher(input);
 		while (matcher.find()) {
 			for (final TokenType value : TokenType.values()) {
-				if (value.ignore)
-					continue;
+				if (value.ignore) continue;
 
 				final String group = matcher.group(value.name());
 				if (group != null) {
@@ -28,8 +27,8 @@ public class Lexer {
 				}
 			}
 		}
-
-		return removeMultipleNextop(tokens);
+		// return removeMultipleNextop(tokens);
+		return tokens;
 	}
 
 	public List<Token> tokenizeRaw(final String input) {

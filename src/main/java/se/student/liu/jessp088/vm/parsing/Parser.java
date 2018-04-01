@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import se.student.liu.jessp088.vm.Bytecode;
 import se.student.liu.jessp088.vm.VMInstruction;
 import se.student.liu.jessp088.vm.instructions.Instruction;
 import se.student.liu.jessp088.vm.parsing.exceptions.ParserException;
@@ -40,6 +41,9 @@ public class Parser {
 	private List<Instruction> instructions;
 	private int instructionPtr;
 
+	private Map<Integer, Integer> ptrToLine;
+	private int lineNumber;
+
 	private final InstructionSupplier supplier;
 
 	public Parser() {
@@ -50,19 +54,21 @@ public class Parser {
 		this.supplier = instructionSupplier;
 	}
 
-	public List<Instruction> parse(final List<Token> input) throws ParserException {
+	public Bytecode parse(final List<Token> input) throws ParserException {
 		this.labels = new HashMap<>();
 		this.definitions = new HashMap<>();
 		this.tokens = new LinkedList<>(input);
 		this.instructions = new ArrayList<>();
 		this.forwardDeclarations = new ArrayList<>();
+		this.ptrToLine = new HashMap<>();
 
 		instructionPtr = 0;
+		lineNumber = 1; // Line numbers start at 1
 		next();
 
 		compilationUnit();
 
-		return instructions;
+		return new Bytecode(instructions, ptrToLine);
 	}
 
 	private void compilationUnit() throws ParserException {
@@ -73,7 +79,11 @@ public class Parser {
 	}
 
 	private void definitions() throws ParserException {
-		while (nextTypeIs(DEFTAG)) {
+		while (nextTypeIs(DEFTAG, NEXTOP)) {
+			if (nextTypeIs(NEXTOP)) {
+				next();
+				continue;
+			}
 			definition();
 			next();
 		}
@@ -93,7 +103,11 @@ public class Parser {
 	}
 
 	private void expressions() throws ParserException {
-		while (nextTypeIs(IDENTIFIER, LEFTBRACKET)) {
+		while (nextTypeIs(IDENTIFIER, LEFTBRACKET, NEXTOP)) {
+			if (nextTypeIs(NEXTOP)) {
+				next();
+				continue;
+			}
 			expression();
 			next();
 		}
@@ -182,9 +196,10 @@ public class Parser {
 
 	private void addInstruction(final VMInstruction instruction, final int... args)
 			throws ParserException {
-		if (args.length < instruction.numArguments) {
-			final String format = "Invalid number of arguments for instruction %s. Expected %s got %s";
-			throw new ParserException(format, instruction, instruction.numArguments, args.length);
+		if (args.length != instruction.numArguments) {
+			final String format = "Invalid number of arguments for instruction %s on line %s. Expected %s got %s";
+			throw new ParserException(format, instruction, lineNumber, instruction.numArguments,
+					args.length);
 		}
 		try {
 			instructions.add(supplier.getInstruction(instruction, args));
@@ -194,28 +209,31 @@ public class Parser {
 	}
 
 	private void instructionProcessed() {
+		ptrToLine.put(instructionPtr, lineNumber);
 		instructionPtr++;
 	}
 
 	private void createLabel(final String label) throws ParserException {
 		if (labels.containsKey(label))
-			throw new ParserException("Label " + label + " already defined!");
+			throw new ParserException("Label %s on line %s already defined!", label, lineNumber);
 		labels.put(label, instructionPtr);
 	}
 
 	private void defineNew(final String name, final int value) throws ParserException {
 		if (definitions.containsKey(name))
-			throw new ParserException("Constant %s already defined!", name);
+			throw new ParserException("Constant %s on line %s already defined!", name, lineNumber);
 		definitions.put(name, value);
 	}
 
 	private int getConstant(final String name) throws ParserException {
 		if (!definitions.containsKey(name))
-			throw new ParserException("Constant %s has not been defined!", name);
+			throw new ParserException("Constant %s on line %s has not been defined!", name,
+					lineNumber);
 		return definitions.get(name);
 	}
 
 	private void next() {
+		if (next != null && next.type == NEXTOP) lineNumber++;
 		try {
 			next = tokens.pop();
 		} catch (final NoSuchElementException ignored) {
@@ -231,7 +249,9 @@ public class Parser {
 
 	private void ensureNextType(final TokenType t) throws ParserException {
 		if (next == null) throw new ParserException("Unexpected EOF! Expected token %s", t);
-		if (!nextTypeIs(t)) throw new ParserException("Expected token %s got %s", t, next.type);
+		if (!nextTypeIs(t))
+			throw new ParserException("Expected token on line %s. Expected %s got %s", lineNumber,
+					t, next.type);
 	}
 
 	private boolean nextTypeIs(final TokenType... types) {

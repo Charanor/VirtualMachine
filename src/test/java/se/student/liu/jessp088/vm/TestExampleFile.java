@@ -1,7 +1,6 @@
 package se.student.liu.jessp088.vm;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -12,7 +11,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import se.student.liu.jessp088.vm.instructions.Instruction;
+import se.student.liu.jessp088.vm.VirtualMachine.VMState;
 import se.student.liu.jessp088.vm.parsing.Lexer;
 import se.student.liu.jessp088.vm.parsing.Parser;
 import se.student.liu.jessp088.vm.parsing.Token;
@@ -26,17 +25,16 @@ public class TestExampleFile {
 	public void test() {
 		final Lexer lexer = new Lexer();
 		final Parser parser = new Parser();
-		final VirtualMachine vm = new VirtualMachine(16, 1);
-		VirtualMachine.DEBUG = true;
 
 		try {
 			final String code = new String(
 					Files.readAllBytes(RESOURCE_DIRECTORY.resolve("count_primes.vm")));
 			final List<Token> tokens = lexer.tokenize(code);
-			final List<Instruction> instructions = parser.parse(tokens);
-			final boolean success = vm.execute(new Bytecode(instructions));
-			assertTrue(vm.getError(), success);
-			assertEquals(vm.getStack().pop(), 25); // 25 primes
+			final Bytecode result = parser.parse(tokens);
+			final VirtualMachine vm = new DefaultVirtualMachine(16, 1);
+			vm.execute(result);
+			assertEquals(vm.getError(), VMState.END_SUCCESS, vm.getCurrentState());
+			assertEquals(168, vm.getStack().peek()); // 168 primes
 		} catch (IOException | LexerException | ParserException e) {
 			fail(e.toString());
 		}

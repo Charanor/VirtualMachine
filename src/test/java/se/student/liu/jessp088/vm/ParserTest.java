@@ -1,5 +1,7 @@
 package se.student.liu.jessp088.vm;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static se.student.liu.jessp088.vm.parsing.TokenType.DEFINE;
 import static se.student.liu.jessp088.vm.parsing.TokenType.DEFTAG;
 import static se.student.liu.jessp088.vm.parsing.TokenType.EOF;
@@ -9,8 +11,6 @@ import static se.student.liu.jessp088.vm.parsing.TokenType.LEFTBRACKET;
 import static se.student.liu.jessp088.vm.parsing.TokenType.NEXTOP;
 import static se.student.liu.jessp088.vm.parsing.TokenType.NUMBER;
 import static se.student.liu.jessp088.vm.parsing.TokenType.RIGHTBRACKET;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import se.student.liu.jessp088.vm.instructions.Instruction;
 import se.student.liu.jessp088.vm.instructions.Literal;
 import se.student.liu.jessp088.vm.instructions.control.Jmp;
 import se.student.liu.jessp088.vm.instructions.data.Load;
@@ -44,6 +43,9 @@ public class ParserTest {
 		tokens.add(token(EQUALS, "="));
 		tokens.add(token(NUMBER, "0x03"));
 		tokens.add(next());
+		tokens.add(next());
+		tokens.add(next());
+		tokens.add(next());
 
 		tokens.add(token(IDENTIFIER, "LITERAL"));
 		tokens.add(token(NUMBER, "5"));
@@ -64,18 +66,17 @@ public class ParserTest {
 		tokens.add(next());
 		tokens.add(eof());
 
-		List<Instruction> instructions = null;
+		Bytecode code = null;
 		try {
-			instructions = parser.parse(tokens);
+			code = parser.parse(tokens);
 		} catch (final ParserException e) {
 			fail("Parsing of tokens " + tokens + " failed! Reason: " + e.getMessage());
 			return;
 		}
 
-		int idx = 0;
-		assertTrue(instructions.get(idx++) instanceof Literal);
-		assertTrue(instructions.get(idx++) instanceof Load);
-		assertTrue(instructions.get(idx++) instanceof Jmp);
+		assertTrue(code.next() instanceof Literal);
+		assertTrue(code.next() instanceof Load);
+		assertTrue(code.next() instanceof Jmp);
 	}
 
 	private static Token token(final TokenType t, final String v) {

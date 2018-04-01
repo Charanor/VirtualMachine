@@ -3,13 +3,26 @@ package se.student.liu.jessp088.vm.instructions;
 import se.student.liu.jessp088.vm.Bytecode;
 import se.student.liu.jessp088.vm.Stack;
 import se.student.liu.jessp088.vm.Variables;
-import se.student.liu.jessp088.vm.exceptions.StackException;
+import se.student.liu.jessp088.vm.VirtualMachine;
 
+/** An instruction that can be processed by a {@link VirtualMachine}.
+ *
+ * @author Charanor */
 public abstract class Instruction {
 	private Stack stack;
 	private Bytecode bytecode;
 	private Variables variables;
 
+	/** Processes this instruction.
+	 *
+	 * @param stack
+	 *            the stack to process on
+	 * @param bytecode
+	 *            the code to process on
+	 * @param variables
+	 *            the variables to process on
+	 * @throws InstructionException
+	 *             if this instruction could not properly process. */
 	public void process(final Stack stack, final Bytecode bytecode, final Variables variables)
 			throws InstructionException {
 		this.stack = stack;
@@ -21,69 +34,51 @@ public abstract class Instruction {
 
 	protected abstract void process() throws InstructionException;
 
-	public void push(final int value) throws InstructionException {
+	protected void push(final int value) throws InstructionException {
 		try {
 			stack.push(value);
-		} catch (final StackException e) {
+		} catch (final IndexOutOfBoundsException e) {
 			throw error(e);
 		}
 	}
 
-	public int pop() throws InstructionException {
+	protected int pop() throws InstructionException {
 		try {
 			return stack.pop();
-		} catch (final StackException e) {
+		} catch (final IndexOutOfBoundsException e) {
 			throw error(e);
 		}
 	}
 
-	public int peek() throws InstructionException {
+	protected int peek() throws InstructionException {
 		try {
-			final int value = stack.pop();
-			stack.push(value);
-			return value;
-		} catch (final StackException e) {
+			return stack.peek();
+		} catch (final IndexOutOfBoundsException e) {
 			throw error(e);
 		}
 	}
 
-	public int deepPeek() throws InstructionException {
+	protected int deepPeek() throws InstructionException {
 		try {
-			final int inTheWay = stack.pop();
-			final int value = stack.pop();
-			stack.push(value);
-			stack.push(inTheWay);
-			return value;
-		} catch (final StackException e) {
+			return stack.deepPeek();
+		} catch (final IndexOutOfBoundsException e) {
 			throw error(e);
 		}
 	}
 
-	public void expandStack(final int size) throws InstructionException {
-		try {
-			stack.expand(size);
-		} catch (final StackException e) {
-			throw error(e);
-		}
+	protected void expandStack(final int size) {
+		stack.expand(size);
 	}
 
-	public void shrinkStack(final int size) throws InstructionException {
-		try {
-			stack.shrink(size);
-		} catch (final StackException e) {
-			throw error(e);
-		}
+	protected void shrinkStack(final int size) {
+		stack.shrink(size);
 	}
 
-	public void sizeStackTo(final int size) throws InstructionException {
-		try {
-			stack.sizeTo(size);
-		} catch (final StackException e) {
-			throw error(e);
-		}
+	protected void sizeStackTo(final int size) {
+		stack.sizeTo(size);
 	}
 
-	public void storeVariable(final int idx, final int val) throws InstructionException {
+	protected void storeVariable(final int idx, final int val) throws InstructionException {
 		try {
 			variables.store(idx, val);
 		} catch (final IndexOutOfBoundsException e) {
@@ -91,7 +86,7 @@ public abstract class Instruction {
 		}
 	}
 
-	public int loadVariable(final int idx) throws InstructionException {
+	protected int loadVariable(final int idx) throws InstructionException {
 		try {
 			return variables.load(idx);
 		} catch (final IndexOutOfBoundsException e) {
@@ -99,17 +94,17 @@ public abstract class Instruction {
 		}
 	}
 
-	public int getPtr() {
+	protected int getPtr() {
 		return bytecode.getPtr();
 	}
 
-	public void setPtr(final int ptr) {
+	protected void setPtr(final int ptr) {
 		bytecode.setPtr(ptr);
 	}
 
 	private InstructionException error(final Throwable cause) throws InstructionException {
-		return new InstructionException(
-				"Error executing instruction " + this.getClass().getSimpleName(), cause);
+		return new InstructionException("Error executing instruction %s. Cause: %s",
+				this.getClass().getSimpleName(), cause);
 	}
 
 	@Override

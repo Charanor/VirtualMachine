@@ -2,13 +2,27 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 
+task createProperties(dependsOn: processResources) {
+  doLast {
+    new File("$projectDir/src/main/resources/version.properties").withWriter { w ->
+        Properties p = new Properties()
+        p['version'] = project.version.toString()
+        p.store w, null
+    }
+  }
+}
+
+allprojects {
+	repositories {
+	    mavenCentral()
+	}
+	
+	version = '0.0.1-SNAPSHOT'
+}
+
 compileJava {
 	sourceCompatibility = 1.8
 	targetCompatibility = 1.8
-}
-
-repositories {
-    mavenCentral()
 }
 
 dependencies {
@@ -17,5 +31,8 @@ dependencies {
 
 jar {
 	baseName = 'VirtualMachine'
-	version = '0.0.1-SNAPSHOT'
+}
+
+classes {
+    dependsOn createProperties
 }

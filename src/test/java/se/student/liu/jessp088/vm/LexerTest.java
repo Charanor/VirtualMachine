@@ -27,7 +27,7 @@ public class LexerTest {
 		final StringBuilder builder = new StringBuilder();
 		builder.append(" \t");
 		builder.append("//asdasd");
-		builder.append("\n");
+		builder.append("\r\n");
 		builder.append("#");
 		builder.append("define");
 		builder.append("=");

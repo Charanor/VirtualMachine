@@ -3,85 +3,126 @@ package se.student.liu.jessp088.vm;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import se.student.liu.jessp088.vm.exceptions.StackException;
-
+/** A stack of integers.
+ *
+ * @author Charanor */
 public class Stack {
-	private final int maxStackSize;
-
 	private int[] stack;
 	private int stackPtr;
 
+	/** Creates a new Stack object with the specified max stack size.
+	 *
+	 * @param maxStackSize */
 	public Stack(final int maxStackSize) {
-		this(16, maxStackSize);
+		stack = new int[maxStackSize];
 	}
 
-	public Stack(final int startSize, final int maxStackSize) {
-		this.maxStackSize = maxStackSize;
-		stack = new int[startSize];
+	/** Creates a new Stack object that is an exact copy (all elements and pointer are the same) of
+	 * the supplied Stack parameter.
+	 *
+	 * @param stack
+	 *            the stack to copy. */
+	public Stack(final Stack stack) {
+		this.stack = new int[stack.getMaxSize()];
+		System.arraycopy(stack.stack, 0, this.stack, 0, stack.getMaxSize());
+		this.stackPtr = stack.stackPtr;
 	}
 
-	public void push(final int value) {
-		if (stackPtr >= maxStackSize)
-			throw new StackException("Trying to push past max stack size!");
-		if (stackPtr >= getCurrentSize()) expand(1);
+	/** Push a value to the top of the stack.
+	 *
+	 * @param value
+	 *            the value
+	 * @throws IndexOutOfBoundsException
+	 *             if the stack is full */
+	public void push(final int value) throws IndexOutOfBoundsException {
+		if (stackPtr >= stack.length)
+			throw new IndexOutOfBoundsException("Trying to push past max stack size!");
 		stack[stackPtr++] = value;
 	}
 
-	public int pop() {
-		if (stackPtr <= 0) throw new StackException("Trying to pop from an empty stack!");
+	/** Remove and return the top value of the stack.
+	 *
+	 * @return the value
+	 * @throws IndexOutOfBoundsException
+	 *             if the stack is empty. */
+	public int pop() throws IndexOutOfBoundsException {
+		if (stackPtr <= 0)
+			throw new IndexOutOfBoundsException("Trying to pop from an empty stack!");
 		return stack[--stackPtr];
 	}
 
-	public void expand(final int size) {
-		final int newSize = getCurrentSize() + size;
-		if (newSize < 0) throw new StackException("Cannot resize to negative stack size!");
-		if (newSize > maxStackSize) throw new StackException("Cannot resize above max stack size!");
-
-		final int[] newStack = new int[newSize];
-		final int len = Math.min(newStack.length, getCurrentSize());
-		System.arraycopy(stack, 0, newStack, 0, len);
-		stack = newStack;
+	/** Returns the top value of the stack without removing it.
+	 *
+	 * @return the value */
+	public int peek() throws IndexOutOfBoundsException {
+		if (stackPtr < 1)
+			throw new IndexOutOfBoundsException("Trying to peek from an empty stack!");
+		return stack[stackPtr - 1];
 	}
 
-	public void shrink(final int size) {
-		expand(-size);
+	/** Returns the first value beneath the top of the stack.
+	 *
+	 * @return the value
+	 * @throws IndexOutOfBoundsException
+	 *             if the stack has fewer than 2 elements. */
+	public int deepPeek() throws IndexOutOfBoundsException {
+		if (stackPtr < 1) throw new IndexOutOfBoundsException(
+				"Cannot deep peek a stack with fewer than 2 elements!");
+		return stack[stackPtr - 1];
 	}
 
-	public void sizeTo(final int size) {
-		if (size < 0) throw new StackException("Cannot resize to negative stack size!");
-		if (size > maxStackSize) throw new StackException("Cannot resize above max stack size!");
-
-		final int delta = size - getCurrentSize();
-		if (delta == 0) return;
-		if (delta > 0) {
-			// expand
-			expand(delta);
-		} else {
-			// shrink
-			shrink(delta);
-		}
-	}
-
+	/** Clears the stack setting the stack pointer to 0. */
 	public void clear() {
 		stackPtr = 0;
 	}
 
-	public int getStackPtr() {
+	/** Increases the max size of the stack by <code>size</code>.
+	 *
+	 * @param size
+	 *            the size */
+	public void expand(final int size) {
+		sizeTo(getMaxSize() + size);
+	}
+
+	/** Reduces the max size of the stack by <code>size</code>.
+	 *
+	 * @param size
+	 *            the size */
+	public void shrink(final int size) {
+		sizeTo(getMaxSize() - size);
+	}
+
+	/** Sets the max size of the stack to <code>size</code>
+	 *
+	 * @param size
+	 *            the size */
+	public void sizeTo(final int size) {
+		final int[] tmp = new int[size];
+		System.arraycopy(stack, 0, tmp, 0, Math.min(size, stack.length));
+		stack = tmp;
+	}
+
+	/** @return the number of elements in the stack */
+	public int getSize() {
 		return stackPtr;
 	}
 
-	public int getCurrentSize() {
+	/** @return the max stack size */
+	public int getMaxSize() {
 		return stack.length;
 	}
 
-	public int getMaxSize() {
-		return maxStackSize;
+	/** @return if the stack is empty or not */
+	public boolean isEmpty() {
+		return stackPtr <= 0;
 	}
 
 	@Override
 	public String toString() {
 		final IntStream stream = IntStream.of(stack);
-		return stream.limit(stackPtr).mapToObj(v -> String.format("0x%02X", v))
+		final String hexFormat = "0x%02X";
+		final String decFormat = "%s";
+		return stream.limit(stackPtr).mapToObj(v -> String.format(decFormat, v))
 				.collect(Collectors.toList()).toString();
 	}
 }
