@@ -52,4 +52,9 @@ public class Bytecode {
 		}
 		throw new IllegalArgumentException("No pointer for line number " + lineNumber);
 	}
+
+	@Override
+	public String toString() {
+		return instructions.toString();
+	}
 }

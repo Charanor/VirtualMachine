@@ -117,12 +117,29 @@ public class Stack {
 		return stackPtr <= 0;
 	}
 
+	/** Returns the contents of the stack. Identical to {@link Stack#toDecimalString()}.
+	 *
+	 * @return the string representation. */
 	@Override
 	public String toString() {
-		final IntStream stream = IntStream.of(stack);
-		final String hexFormat = "0x%02X";
-		final String decFormat = "%s";
-		return stream.limit(stackPtr).mapToObj(v -> String.format(decFormat, v))
+		return toDecimalString();
+	}
+
+	/** Returns the contents of the stack represented as decimal numbers. Example:
+	 * <code>[5, 10, 252]</code>.
+	 *
+	 * @return the string representation. */
+	public String toDecimalString() {
+		return IntStream.of(stack).limit(stackPtr).mapToObj(v -> v).collect(Collectors.toList())
+				.toString();
+	}
+
+	/** Returns the contents of the stack represented as hexadecimal numbers. Example:
+	 * <code>[0x05, 0x0A, 0xFC]</code>.
+	 *
+	 * @return the string representation. */
+	public String toHexString() {
+		return IntStream.of(stack).limit(stackPtr).mapToObj(v -> String.format("0x%02X", v))
 				.collect(Collectors.toList()).toString();
 	}
 }

@@ -23,6 +23,10 @@ tomcat
 *.class
 bin/
 
+# Logs
+*.log
+logs/
+
 # Maven 
 target/
 

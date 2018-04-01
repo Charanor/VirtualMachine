@@ -26,6 +26,7 @@ compileJava {
 }
 
 dependencies {
+	compile "ch.qos.logback:logback-classic:$loggerVersion"
 	testCompile "junit:junit:$junitVersion"
 }
 

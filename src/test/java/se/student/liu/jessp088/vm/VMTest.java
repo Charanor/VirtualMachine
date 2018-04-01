@@ -20,7 +20,6 @@ import se.student.liu.jessp088.vm.instructions.data.Load;
 import se.student.liu.jessp088.vm.instructions.data.Store;
 
 public class VMTest {
-
 	private Bytecode code;
 	private VirtualMachine vm;
 
@@ -135,7 +134,6 @@ public class VMTest {
 		vm.debug(code);
 
 		assertEquals(vm.getError(), VMState.PAUSE_BREAKPOINT, vm.getCurrentState());
-		System.out.println(vm.getCurrentInstruction());
 		final int shouldBe4 = vm.getStack().pop();
 		vm.getStack().push(shouldBe4);
 		assertEquals(4, shouldBe4);
