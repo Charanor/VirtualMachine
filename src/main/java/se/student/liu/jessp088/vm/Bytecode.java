@@ -36,7 +36,7 @@ public class Bytecode {
 	}
 
 	public int getLineNumber() {
-		return toLineNumber(getPtr());
+		return toLineNumber(ptr);
 	}
 
 	public int toLineNumber(final int ptr) {

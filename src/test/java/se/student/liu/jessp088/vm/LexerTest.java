@@ -40,18 +40,18 @@ public class LexerTest {
 
 		int idx = 0;
 		final List<Token> tokens = lexer.tokenizeRaw(builder.toString());
-		assertEquals(tokens.get(idx++).type, TokenType.WHITESPACE);
-		assertEquals(tokens.get(idx++).type, TokenType.COMMENT);
-		assertEquals(tokens.get(idx++).type, TokenType.NEXTOP);
-		assertEquals(tokens.get(idx++).type, TokenType.DEFTAG);
-		assertEquals(tokens.get(idx++).type, TokenType.DEFINE);
-		assertEquals(tokens.get(idx++).type, TokenType.EQUALS);
-		assertEquals(tokens.get(idx++).type, TokenType.NUMBER);
-		assertEquals(tokens.get(idx++).type, TokenType.LEFTBRACKET);
-		assertEquals(tokens.get(idx++).type, TokenType.RIGHTBRACKET);
-		assertEquals(tokens.get(idx++).type, TokenType.IDENTIFIER);
-		assertEquals(tokens.get(idx++).type, TokenType.WHITESPACE);
-		assertEquals(tokens.get(tokens.size() - 1).type, TokenType.EOF);
+		assertEquals(TokenType.WHITESPACE, tokens.get(idx++).type);
+		assertEquals(TokenType.COMMENT, tokens.get(idx++).type);
+		assertEquals(TokenType.NEXTOP, tokens.get(idx++).type);
+		assertEquals(TokenType.DEFTAG, tokens.get(idx++).type);
+		assertEquals(TokenType.DEFINE, tokens.get(idx++).type);
+		assertEquals(TokenType.EQUALS, tokens.get(idx++).type);
+		assertEquals(TokenType.NUMBER, tokens.get(idx++).type);
+		assertEquals(TokenType.LEFTBRACKET, tokens.get(idx++).type);
+		assertEquals(TokenType.RIGHTBRACKET, tokens.get(idx++).type);
+		assertEquals(TokenType.IDENTIFIER, tokens.get(idx++).type);
+		assertEquals(TokenType.WHITESPACE, tokens.get(idx++).type);
+		assertEquals(TokenType.EOF, tokens.get(tokens.size() - 1).type);
 	}
 
 	@Test
@@ -62,7 +62,7 @@ public class LexerTest {
 		try {
 			tokens = lexer.tokenize(builder.toString());
 		} catch (final LexerException e) {
-			fail("Lexing of code " + builder.toString() + " failed! Reason: " + e.getMessage());
+			fail("Lexing of code " + builder + " failed! Reason: " + e.getMessage());
 		}
 		if (tokens != null) tokens.forEach(t -> assertFalse(t.type.ignore));
 	}

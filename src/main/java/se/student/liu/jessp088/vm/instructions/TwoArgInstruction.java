@@ -4,7 +4,7 @@ public abstract class TwoArgInstruction extends Instruction {
 	protected final int left;
 	protected final int right;
 
-	public TwoArgInstruction(final int left, final int right) {
+	protected TwoArgInstruction(final int left, final int right) {
 		this.left = left;
 		this.right = right;
 	}

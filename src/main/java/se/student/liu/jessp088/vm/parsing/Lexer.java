@@ -27,7 +27,6 @@ public class Lexer {
 				}
 			}
 		}
-		// return removeMultipleNextop(tokens);
 		return tokens;
 	}
 
@@ -50,7 +49,7 @@ public class Lexer {
 	}
 
 	private String concatAllTokens() {
-		final StringBuffer sb = new StringBuffer();
+		final StringBuilder sb = new StringBuilder();
 		for (final TokenType value : TokenType.values()) {
 			// Named capture group
 			final String format = "|(?<%s>%s)";
@@ -59,17 +58,5 @@ public class Lexer {
 		}
 		// Substring 1 so we don't include the first "|"
 		return sb.substring(1);
-	}
-
-	private List<Token> removeMultipleNextop(final List<Token> tokens) {
-		final List<Token> onlyOneNextop = new ArrayList<>();
-		for (int i = 0; i < tokens.size(); i++) {
-			final Token t = tokens.get(i);
-			if (t.type == TokenType.NEXTOP
-					&& (i == 0 || tokens.get(i - 1).type == TokenType.NEXTOP))
-				continue;
-			onlyOneNextop.add(t);
-		}
-		return onlyOneNextop;
 	}
 }

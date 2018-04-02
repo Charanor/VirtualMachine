@@ -26,7 +26,8 @@ import se.student.liu.jessp088.vm.parsing.Token;
 import se.student.liu.jessp088.vm.parsing.TokenType;
 import se.student.liu.jessp088.vm.parsing.exceptions.ParserException;
 
-public class ParserTest {
+public class ParserTest
+{
 	private Parser parser;
 
 	@Before
@@ -66,7 +67,7 @@ public class ParserTest {
 		tokens.add(next());
 		tokens.add(eof());
 
-		Bytecode code = null;
+		Bytecode code;
 		try {
 			code = parser.parse(tokens);
 		} catch (final ParserException e) {

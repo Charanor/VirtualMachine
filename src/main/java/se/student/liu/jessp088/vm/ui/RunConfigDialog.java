@@ -3,10 +3,7 @@ package se.student.liu.jessp088.vm.ui;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 public class RunConfigDialog extends JDialog {
@@ -17,7 +14,7 @@ public class RunConfigDialog extends JDialog {
 	public static void main(final String[] args) {
 		try {
 			final RunConfigDialog dialog = new RunConfigDialog(null);
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (final Exception e) {
 			e.printStackTrace();

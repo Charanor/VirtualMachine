@@ -9,7 +9,7 @@ public class SizeTo extends OneArgInstruction {
 	}
 
 	@Override
-	protected void process() throws InstructionException {
+	protected void process() {
 		sizeStackTo(arg);
 	}
 }

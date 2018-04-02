@@ -4,7 +4,7 @@ import se.student.liu.jessp088.vm.instructions.InstructionException;
 import se.student.liu.jessp088.vm.instructions.OneArgInstruction;
 
 public abstract class JumpInstruction extends OneArgInstruction {
-	public JumpInstruction(final int arg) {
+	protected JumpInstruction(final int arg) {
 		super(arg);
 	}
 

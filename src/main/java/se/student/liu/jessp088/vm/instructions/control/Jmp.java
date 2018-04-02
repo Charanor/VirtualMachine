@@ -9,7 +9,7 @@ public class Jmp extends JumpInstruction {
 	}
 
 	@Override
-	protected boolean shouldJump() throws InstructionException {
+	protected boolean shouldJump() {
 		return true;
 	}
 }

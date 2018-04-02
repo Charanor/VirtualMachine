@@ -10,7 +10,7 @@ public class Free extends OneArgInstruction {
 	}
 
 	@Override
-	protected void process() throws InstructionException {
+	protected void process() {
 		shrinkStack(arg);
 	}
 }

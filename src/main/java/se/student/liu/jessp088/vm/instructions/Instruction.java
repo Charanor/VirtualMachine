@@ -5,26 +5,27 @@ import se.student.liu.jessp088.vm.Stack;
 import se.student.liu.jessp088.vm.Variables;
 import se.student.liu.jessp088.vm.VirtualMachine;
 
-/** An instruction that can be processed by a {@link VirtualMachine}.
+/**
+ * An instruction that can be processed by a {@link VirtualMachine}.
  *
- * @author Charanor */
-public abstract class Instruction {
+ * @author Charanor
+ */
+public abstract class Instruction
+{
 	private Stack stack;
 	private Bytecode bytecode;
 	private Variables variables;
 
-	/** Processes this instruction.
+	/**
+	 * Processes this instruction.
 	 *
-	 * @param stack
-	 *            the stack to process on
-	 * @param bytecode
-	 *            the code to process on
-	 * @param variables
-	 *            the variables to process on
-	 * @throws InstructionException
-	 *             if this instruction could not properly process. */
-	public void process(final Stack stack, final Bytecode bytecode, final Variables variables)
-			throws InstructionException {
+	 * @param stack     the stack to process on
+	 * @param bytecode  the code to process on
+	 * @param variables the variables to process on
+	 *
+	 * @throws InstructionException if this instruction could not properly process.
+	 */
+	public void process(final Stack stack, final Bytecode bytecode, final Variables variables) throws InstructionException {
 		this.stack = stack;
 		this.bytecode = bytecode;
 		this.variables = variables;
@@ -102,9 +103,8 @@ public abstract class Instruction {
 		bytecode.setPtr(ptr);
 	}
 
-	private InstructionException error(final Throwable cause) throws InstructionException {
-		return new InstructionException("Error executing instruction %s. Cause: %s",
-				this.getClass().getSimpleName(), cause);
+	private InstructionException error(final Throwable cause) {
+		return new InstructionException("Error executing instruction %s. Cause: %s", this.getClass().getSimpleName(), cause);
 	}
 
 	@Override

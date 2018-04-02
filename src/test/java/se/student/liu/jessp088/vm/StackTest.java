@@ -5,7 +5,8 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
-public class StackTest {
+public class StackTest
+{
 	private static final int MAX_STACK_SIZE = 3;
 
 	private Stack stack;
@@ -19,6 +20,9 @@ public class StackTest {
 	public void testPush() {
 		stack.push(10);
 		stack.push(3);
+
+		assertEquals(3, stack.peek());
+		assertEquals(10, stack.deepPeek());
 	}
 
 	@Test
@@ -37,8 +41,7 @@ public class StackTest {
 
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void testPushException() {
-		for (int i = 0; i <= MAX_STACK_SIZE; i++)
-			stack.push(0);
+		for (int i = 0; i <= MAX_STACK_SIZE; i++) { stack.push(0); }
 	}
 
 	@Test

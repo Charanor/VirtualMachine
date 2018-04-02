@@ -14,22 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
@@ -201,7 +186,7 @@ public class GUI {
 		programExtrasSplitter.setResizeWeight(0.8);
 		programExtrasSplitter.setOrientation(JSplitPane.VERTICAL_SPLIT);
 
-		programTabs = new JTabbedPane(JTabbedPane.TOP);
+		programTabs = new JTabbedPane(SwingConstants.TOP);
 		programExtrasSplitter.setLeftComponent(programTabs);
 
 		// final JTextArea codeTextArea = new JTextArea();
@@ -215,7 +200,7 @@ public class GUI {
 		// programTabs.addTab("Program", PROGRAM_ICON, codeScrollPane,
 		// null);
 
-		extrasTabs = new JTabbedPane(JTabbedPane.TOP);
+		extrasTabs = new JTabbedPane(SwingConstants.TOP);
 		programExtrasSplitter.setRightComponent(extrasTabs);
 
 		consoleTextArea = new JTextArea();

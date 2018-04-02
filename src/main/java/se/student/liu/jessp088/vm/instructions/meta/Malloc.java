@@ -9,7 +9,7 @@ public class Malloc extends OneArgInstruction {
 	}
 
 	@Override
-	protected void process() throws InstructionException {
+	protected void process() {
 		expandStack(arg);
 	}
 }

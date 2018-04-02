@@ -19,7 +19,8 @@ import se.student.liu.jessp088.vm.instructions.control.Jmp;
 import se.student.liu.jessp088.vm.instructions.data.Load;
 import se.student.liu.jessp088.vm.instructions.data.Store;
 
-public class VMTest {
+public class VirtualMachineTest
+{
 	private Bytecode code;
 	private VirtualMachine vm;
 
@@ -52,10 +53,10 @@ public class VMTest {
 		final Stack s = vm.getStack();
 		final Variables v = vm.getVariables();
 
-		assertEquals(s.pop(), 1);
-		assertEquals(v.load(0), 1);
-		assertEquals(v.load(1), 0);
-		assertEquals(v.load(2), 55);
+		assertEquals(1, s.pop());
+		assertEquals(1, v.load(0));
+		assertEquals(0, v.load(1));
+		assertEquals(55, v.load(2));
 	}
 
 	@Test
