@@ -10,8 +10,6 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-import se.student.liu.jessp088.vm.VirtualMachine.DebugListener;
-import se.student.liu.jessp088.vm.VirtualMachine.VMState;
 import se.student.liu.jessp088.vm.instructions.Instruction;
 import se.student.liu.jessp088.vm.instructions.Literal;
 import se.student.liu.jessp088.vm.instructions.arithmetic.Sub;
@@ -19,8 +17,7 @@ import se.student.liu.jessp088.vm.instructions.control.Jmp;
 import se.student.liu.jessp088.vm.instructions.data.Load;
 import se.student.liu.jessp088.vm.instructions.data.Store;
 
-public class VirtualMachineTest
-{
+public class VirtualMachineTest {
 	private Bytecode code;
 	private VirtualMachine vm;
 

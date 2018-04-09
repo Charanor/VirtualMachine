@@ -9,6 +9,14 @@ public abstract class TwoArgInstruction extends Instruction {
 		this.right = right;
 	}
 
+	public int getArg1() {
+		return left;
+	}
+
+	public int getArg2() {
+		return right;
+	}
+
 	@Override
 	public String toString() {
 		return super.toString() + " " + left + " " + right;

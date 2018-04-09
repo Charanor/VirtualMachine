@@ -2,15 +2,7 @@ package se.student.liu.jessp088.vm;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static se.student.liu.jessp088.vm.parsing.TokenType.DEFINE;
-import static se.student.liu.jessp088.vm.parsing.TokenType.DEFTAG;
-import static se.student.liu.jessp088.vm.parsing.TokenType.EOF;
-import static se.student.liu.jessp088.vm.parsing.TokenType.EQUALS;
-import static se.student.liu.jessp088.vm.parsing.TokenType.IDENTIFIER;
-import static se.student.liu.jessp088.vm.parsing.TokenType.LEFTBRACKET;
-import static se.student.liu.jessp088.vm.parsing.TokenType.NEXTOP;
-import static se.student.liu.jessp088.vm.parsing.TokenType.NUMBER;
-import static se.student.liu.jessp088.vm.parsing.TokenType.RIGHTBRACKET;
+import static se.student.liu.jessp088.vm.parsing.TokenType.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,14 +17,14 @@ import se.student.liu.jessp088.vm.parsing.Parser;
 import se.student.liu.jessp088.vm.parsing.Token;
 import se.student.liu.jessp088.vm.parsing.TokenType;
 import se.student.liu.jessp088.vm.parsing.exceptions.ParserException;
+import se.student.liu.jessp088.vm.parsing.suppliers.ReflectionSupplier;
 
-public class ParserTest
-{
+public class ParserTest {
 	private Parser parser;
 
 	@Before
-	public void setUp() throws Exception {
-		parser = new Parser();
+	public void setUp() {
+		parser = new Parser(new ReflectionSupplier());
 	}
 
 	@Test
@@ -71,7 +63,8 @@ public class ParserTest
 		try {
 			code = parser.parse(tokens);
 		} catch (final ParserException e) {
-			fail("Parsing of tokens " + tokens + " failed! Reason: " + e.getMessage());
+			fail("Parsing of tokens " + tokens + " failed! Reason: " + e);
+			e.printStackTrace();
 			return;
 		}
 

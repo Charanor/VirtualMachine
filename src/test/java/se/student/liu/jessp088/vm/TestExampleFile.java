@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import se.student.liu.jessp088.vm.VirtualMachine.VMState;
 import se.student.liu.jessp088.vm.parsing.Lexer;
 import se.student.liu.jessp088.vm.parsing.Parser;
 import se.student.liu.jessp088.vm.parsing.Token;

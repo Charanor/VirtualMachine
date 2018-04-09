@@ -13,16 +13,40 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
 
 import se.student.liu.jessp088.vm.Bytecode;
+import se.student.liu.jessp088.vm.DebugListener;
 import se.student.liu.jessp088.vm.DefaultVirtualMachine;
+import se.student.liu.jessp088.vm.Variables;
 import se.student.liu.jessp088.vm.VirtualMachine;
+import se.student.liu.jessp088.vm.instructions.Instruction;
+import se.student.liu.jessp088.vm.instructions.data.Store;
 import se.student.liu.jessp088.vm.parsing.Lexer;
 import se.student.liu.jessp088.vm.parsing.Parser;
 import se.student.liu.jessp088.vm.parsing.Token;
@@ -38,6 +62,7 @@ public class GUI {
 	private static final Icon DEBUG_ICON = new ImageIcon(GUI.class.getResource("/debug_16.png"));
 	private static final Icon CONSOLE_ICON = new ImageIcon(GUI.class.getResource("/pc_16.png"));
 	private static final Icon VARIABLES_ICON = new ImageIcon(GUI.class.getResource("/var_16.png"));
+	private static final Icon STACK_ICON = new ImageIcon(GUI.class.getResource("/stack_16.png"));
 	private static final Icon PROGRAM_ICON = new ImageIcon(GUI.class.getResource("/vm_16.png"));
 	private static final Icon RESUME_ICON = new ImageIcon(GUI.class.getResource("/resume_16.png"));
 	private static final Icon PAUSE_ICON = new ImageIcon(GUI.class.getResource("/pause_16.png"));
@@ -46,13 +71,11 @@ public class GUI {
 
 	private static final Font CODE_FONT = new Font("Consolas", Font.PLAIN, 12);
 
+	private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
 	private Lexer lexer;
 	private Parser parser;
 	private VirtualMachine vm;
-
-	// Debugging state
-	private Bytecode parseResult;
-	private boolean isDebugging;
 
 	private JFrame frame;
 	private JFileChooser fc;
@@ -63,6 +86,11 @@ public class GUI {
 
 	private final int maxStackSize = DEFAULT_MAX_STACK_SIZE;
 	private final int maxVariableSize = DEFAULT_MAX_VARIABLE_SIZE;
+	private JMenuItem resumeOption;
+	private JMenuItem pauseOption;
+	private JMenuItem stopOption;
+	private JTextArea stackTextArea;
+	private JLabel lineInfoLabel;
 
 	/** Launch the application. */
 	public static void main(final String[] args) {
@@ -145,20 +173,26 @@ public class GUI {
 		final JSeparator separator = new JSeparator();
 		runMenu.add(separator);
 
-		final JMenuItem resumeOption = new JMenuItem("Resume Execution");
+		resumeOption = new JMenuItem("Resume Execution");
+		resumeOption.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK));
 		resumeOption.setEnabled(false);
 		resumeOption.setIcon(RESUME_ICON);
-		resumeOption.addActionListener(this::resumeDebug);
+		resumeOption.addActionListener(this::resumeExecution);
 		runMenu.add(resumeOption);
 
-		final JMenuItem pauseOption = new JMenuItem("Pause Execution");
+		pauseOption = new JMenuItem("Pause Execution");
+		pauseOption.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK));
 		pauseOption.setEnabled(false);
 		pauseOption.setIcon(PAUSE_ICON);
+		pauseOption.addActionListener(this::pauseExecution);
 		runMenu.add(pauseOption);
 
-		final JMenuItem stopOption = new JMenuItem("Stop Execution");
+		stopOption = new JMenuItem("Stop Execution");
+		stopOption.setAccelerator(
+				KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK | InputEvent.ALT_MASK));
 		stopOption.setEnabled(false);
 		stopOption.setIcon(STOP_ICON);
+		stopOption.addActionListener(this::stopExecution);
 		runMenu.add(stopOption);
 
 		final JSeparator separator_1 = new JSeparator();
@@ -173,6 +207,19 @@ public class GUI {
 		final JMenuItem addBreakpointOption = new JMenuItem("Add Breakpoint at Cursor");
 		addBreakpointOption.addActionListener(this::addBreakpointAtCursor);
 		debugMenu.add(addBreakpointOption);
+
+		final JMenuItem clearConsoleOption = new JMenuItem("Clear console");
+		clearConsoleOption.addActionListener(e -> consoleTextArea.setText(""));
+
+		final JMenuItem removeBreakpointOption = new JMenuItem("Remove Breakpoint at Cursor");
+		removeBreakpointOption.addActionListener(this::removeBreakpointAtCursor);
+		debugMenu.add(removeBreakpointOption);
+
+		final JMenuItem removeAllOption = new JMenuItem("Remove all Breakpoints");
+		removeAllOption.addActionListener(e -> vm.removeAllBreakpoints());
+		debugMenu.add(removeAllOption);
+		debugMenu.add(clearConsoleOption);
+
 		configurationOption.addActionListener(e -> {
 			final RunConfigDialog dialog = new RunConfigDialog(frame);
 
@@ -187,7 +234,6 @@ public class GUI {
 		programExtrasSplitter.setOrientation(JSplitPane.VERTICAL_SPLIT);
 
 		programTabs = new JTabbedPane(SwingConstants.TOP);
-		programExtrasSplitter.setLeftComponent(programTabs);
 
 		// final JTextArea codeTextArea = new JTextArea();
 		// codeTextArea.setBorder(new LineBorder(Color.GRAY));
@@ -204,6 +250,7 @@ public class GUI {
 		programExtrasSplitter.setRightComponent(extrasTabs);
 
 		consoleTextArea = new JTextArea();
+		consoleTextArea.setEditable(false);
 		consoleTextArea.setBorder(new LineBorder(Color.GRAY));
 		consoleTextArea.setFont(CODE_FONT);
 		final JScrollPane consoleScrollPane = new JScrollPane(consoleTextArea);
@@ -219,16 +266,87 @@ public class GUI {
 
 		final JScrollPane variableScrollPane = new JScrollPane(variableTable);
 		extrasTabs.addTab("Variables", VARIABLES_ICON, variableScrollPane, null);
+
+		stackTextArea = new JTextArea();
+		stackTextArea.setEditable(false);
+		final JScrollPane stackScrollPane = new JScrollPane(stackTextArea);
+		extrasTabs.addTab("Stack", STACK_ICON, stackScrollPane, null);
+
+		// Redirect logging to GUI console
+		new MessageConsole(consoleTextArea).redirectOut();
+
+		final JPanel codePanel = new JPanel();
+		programExtrasSplitter.setLeftComponent(codePanel);
+		codePanel.setLayout(new BorderLayout(0, 0));
+		codePanel.add(programTabs);
+
+		lineInfoLabel = new JLabel("Line: 0, Column: 0");
+		codePanel.add(lineInfoLabel, BorderLayout.SOUTH);
+
+		// Listener to add variables to table
+		vm.addDebugListener(new DebugListener() {
+			@Override
+			public void beforeExecution(final VirtualMachine vm) {
+				final int numRows = variableTable.getModel().getRowCount();
+				for (int i = 0; i < numRows; i++) {
+					variableTable.getModel().setValueAt(null, i, 0);
+					variableTable.getModel().setValueAt(null, i, 1);
+				}
+
+				stackTextArea.setText("");
+			}
+
+			@Override
+			public void afterExecution(final VirtualMachine vm) {
+				resumeOption.setEnabled(false);
+				pauseOption.setEnabled(false);
+				stopOption.setEnabled(false);
+			}
+
+			@Override
+			public void beforeInstruction(final VirtualMachine vm) {
+			}
+
+			@Override
+			public void afterInstruction(final VirtualMachine vm) {
+				stackTextArea.setText(vm.getStack().toString());
+
+				final Instruction ins = vm.getCurrentInstruction();
+				if (!(ins instanceof Store)) return;
+				final Store store = (Store) ins;
+				final int varIdx = store.getArg();
+
+				final Variables variables = vm.getVariables();
+				variableTable.getModel().setValueAt(varIdx, varIdx, 0);
+				variableTable.getModel().setValueAt(variables.load(varIdx), varIdx, 1);
+			}
+
+			@Override
+			public void onStateChanged(final VirtualMachine vm) {
+				resumeOption.setEnabled(vm.isPaused());
+				pauseOption.setEnabled(vm.isRunning());
+				stopOption.setEnabled(vm.isPaused() || vm.isRunning());
+			}
+		});
 	}
 
 	private void openNewProgramTab(final String tabName, final String tabContents) {
-		final JTextArea codeTextArea = new JTextArea(tabContents);
-		codeTextArea.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-		codeTextArea.setFont(CODE_FONT);
+		final JTextArea text = new JTextArea(tabContents);
+		text.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+		text.setFont(CODE_FONT);
+		text.addCaretListener(e -> {
+			try {
+				final int lineNumber = lineNumberAtCursor();
+				final int column = text.getCaretPosition()
+						- text.getLineStartOffset(lineNumber - 1);
+				lineInfoLabel.setText("Line: " + lineNumber + ", Column: " + column);
+			} catch (final Exception ignored) {
+			}
+		});
 
-		final TextLineNumber lineNumbers = new TextLineNumber(codeTextArea);
-		final JScrollPane codeScrollPane = new JScrollPane(codeTextArea);
-		codeScrollPane.setRowHeaderView(lineNumbers);
+		final TextLineNumber lineNumbers = new TextLineNumber(text);
+		final JScrollPane codeScrollPane = new JScrollPane(text);
+		// codeScrollPane.setRowHeaderView(lineNumbers);
 
 		programTabs.addTab(tabName, PROGRAM_ICON, codeScrollPane, null);
 	}
@@ -288,36 +406,33 @@ public class GUI {
 	private void runCodeInOpenTab(final ActionEvent e) {
 		final Bytecode result = parseCodeInOpenTab();
 		if (result == null) return;
-		// if (!vm.execute(result)) {
-		// addConsoleMessage("Execution of bytecode failed with error
-		// %s.", vm.getError());
-		// } else {
-		// addConsoleMessage("Execution of bytecode successful. End
-		// state: %s.", vm);
-		// }
+
+		executor.execute(() -> {
+			vm.stopExecution();
+			vm.execute(result);
+		});
 	}
 
 	private void debugCodeInOpenTab(final ActionEvent e) {
-		parseResult = parseCodeInOpenTab();
-		if (parseResult == null) return;
+		final Bytecode result = parseCodeInOpenTab();
+		if (result == null) return;
 
-		isDebugging = true;
-
-		resumeDebug(e);
+		executor.execute(() -> {
+			vm.stopExecution();
+			vm.debug(result);
+		});
 	}
 
-	private void resumeDebug(final ActionEvent e) {
-		// if (vm.isDebugFinished()) {
-		// addConsoleMessage("Execution of bytecode successful. End
-		// state: %s.", vm);
-		// isDebugging = false;
-		// return;
-		// } else if (!vm.execute(parseResult.code,
-		// parseResult.instructionToLineNumber)) {
-		// addConsoleMessage("Execution of bytecode failed with error
-		// %s.", vm.getError());
-		// isDebugging = false;
-		// }
+	private void resumeExecution(final ActionEvent e) {
+		vm.resumeExecution();
+	}
+
+	private void pauseExecution(final ActionEvent e) {
+		vm.pauseExecution();
+	}
+
+	private void stopExecution(final ActionEvent e) {
+		vm.stopExecution();
 	}
 
 	private void closeCurrentProgramTab(final ActionEvent e) {
@@ -331,15 +446,36 @@ public class GUI {
 	}
 
 	private void addBreakpointAtCursor(final ActionEvent e) {
+		final int lineNumber = lineNumberAtCursor();
+		if (lineNumber == -1) {
+			addConsoleMessage("Could not add breakpoint at cursor, invalid line.");
+			return;
+		}
+
+		vm.addBreakpoint(vm.convertLineToPtr(lineNumber));
+		addConsoleMessage("Setting breakpoint at line %s.", lineNumber);
+	}
+
+	private void removeBreakpointAtCursor(final ActionEvent e) {
+		final int lineNumber = lineNumberAtCursor();
+		if (lineNumber == -1) {
+			addConsoleMessage("Could not remove breakpoint at cursor, invalid line.");
+			return;
+		}
+
+		vm.removeBreakpoint(vm.convertLineToPtr(lineNumber));
+		addConsoleMessage("Removing breakpoint at line %s.", lineNumber);
+	}
+
+	private int lineNumberAtCursor() {
 		try {
 			final JTextArea text = getCurrentProgramTextArea();
-			if (text == null) return;
+			if (text == null) return -1;
 			final int carretOffset = text.getCaretPosition();
-			final int lineNumber = text.getLineOfOffset(carretOffset);
-			// vm.setBreakpoint(lineNumber);
-			addConsoleMessage("Setting breakpoint at line %s.", lineNumber);
+			return text.getLineOfOffset(carretOffset) + 1;
 		} catch (final BadLocationException e1) {
-			addConsoleMessage("Could not add breakpoint at cursor. Error: %s.", e1);
+			addConsoleMessage("Could not fetch line number at cursor. Error: %s.", e1);
+			return -1;
 		}
 	}
 

@@ -1,8 +1,9 @@
 package se.student.liu.jessp088.vm;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
-public class Variables {
+public class Variables implements Iterable<Integer> {
 	private final int[] variables;
 	private int numVariables;
 
@@ -41,5 +42,22 @@ public class Variables {
 	@Override
 	public String toString() {
 		return Arrays.toString(Arrays.copyOf(variables, numVariables));
+	}
+
+	@Override
+	public Iterator<Integer> iterator() {
+		return new Iterator<Integer>() {
+			int idx = 0;
+
+			@Override
+			public boolean hasNext() {
+				return idx < variables.length;
+			}
+
+			@Override
+			public Integer next() {
+				return variables[idx++];
+			}
+		};
 	}
 }

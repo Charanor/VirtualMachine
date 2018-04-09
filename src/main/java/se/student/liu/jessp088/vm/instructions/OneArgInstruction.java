@@ -7,6 +7,10 @@ public abstract class OneArgInstruction extends Instruction {
 		this.arg = arg;
 	}
 
+	public int getArg() {
+		return arg;
+	}
+
 	@Override
 	public String toString() {
 		return super.toString() + " " + arg;
