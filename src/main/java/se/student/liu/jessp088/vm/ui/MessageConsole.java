@@ -38,7 +38,7 @@ public class MessageConsole {
 	/* Class to intercept output from a PrintStream and add it to a Document. The output can
 	 * optionally be redirected to a different PrintStream. The text displayed in the Document can
 	 * be color coded to indicate the output source. */
-	class ConsoleOutputStream extends ByteArrayOutputStream {
+	public class ConsoleOutputStream extends ByteArrayOutputStream {
 		private final String EOL = System.getProperty("line.separator");
 		private final StringBuffer buffer = new StringBuffer(80);
 		private boolean isFirstLine;
@@ -50,7 +50,7 @@ public class MessageConsole {
 		@Override
 		public void flush() {
 			final String message = toString();
-			if (message.length() == 0) return;
+			if (message.isEmpty()) return;
 			handleAppend(message);
 			reset();
 		}

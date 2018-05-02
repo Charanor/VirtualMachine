@@ -58,7 +58,7 @@ public interface VirtualMachine {
 	 * {@link VMState#END_SUCCESS}.
 	 *
 	 * @return the current state. */
-	VMState getCurrentState();
+	VMState getState();
 
 	/** Gets the previous {@link VMState} of the virtual machine. The default state is
 	 * {@link VMState#END_SUCCESS}.
@@ -68,17 +68,17 @@ public interface VirtualMachine {
 
 	/** @return true if the virtual machine is currently running; false otherwise. */
 	default boolean isRunning() {
-		return getCurrentState().running;
+		return getState().running;
 	}
 
 	/** @return true if the virtual machine is currently paused; false otherwise. */
 	default boolean isPaused() {
-		return getCurrentState().paused;
+		return getState().paused;
 	}
 
 	/** @return true if the virtual machine is currently stopped; false otherwise. */
 	default boolean isStopped() {
-		return getCurrentState().stopped;
+		return getState().stopped;
 	}
 
 	/** @return true if the virtual machine previous state was running; false otherwise. */

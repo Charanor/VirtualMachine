@@ -16,6 +16,12 @@ public abstract class Instruction
 	private Bytecode bytecode;
 	private Variables variables;
 
+	protected Instruction() {
+		this.stack = null;
+		this.bytecode = null;
+		this.variables = null;
+	}
+
 	/**
 	 * Processes this instruction.
 	 *

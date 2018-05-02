@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
  * @author Charanor */
 public class Stack {
 	private int[] stack;
-	private int stackPtr;
+	private int size;
 
 	/** Creates a new Stack object with the specified max stack size.
 	 *
@@ -25,7 +25,7 @@ public class Stack {
 	public Stack(final Stack stack) {
 		this.stack = new int[stack.getMaxSize()];
 		System.arraycopy(stack.stack, 0, this.stack, 0, stack.getMaxSize());
-		this.stackPtr = stack.stackPtr;
+		this.size = stack.size;
 	}
 
 	/** Push a value to the top of the stack.
@@ -36,9 +36,9 @@ public class Stack {
 	 * @throws IndexOutOfBoundsException
 	 *             if the stack is full */
 	public void push(final int value) throws IndexOutOfBoundsException {
-		if (stackPtr >= stack.length)
+		if (size >= stack.length)
 			throw new IndexOutOfBoundsException("Trying to push past max stack size!");
-		stack[stackPtr++] = value;
+		stack[size++] = value;
 	}
 
 	/** Remove and return the top value of the stack.
@@ -47,18 +47,18 @@ public class Stack {
 	 * @throws IndexOutOfBoundsException
 	 *             if the stack is empty. */
 	public int pop() throws IndexOutOfBoundsException {
-		if (stackPtr <= 0)
+		if (size <= 0)
 			throw new IndexOutOfBoundsException("Trying to pop from an empty stack!");
-		return stack[--stackPtr];
+		return stack[--size];
 	}
 
 	/** Returns the top value of the stack without removing it.
 	 *
 	 * @return the value */
 	public int peek() throws IndexOutOfBoundsException {
-		if (stackPtr < 1)
+		if (size < 1)
 			throw new IndexOutOfBoundsException("Trying to peek from an empty stack!");
-		return stack[stackPtr - 1];
+		return stack[size - 1];
 	}
 
 	/** Returns the first value beneath the top of the stack.
@@ -67,14 +67,14 @@ public class Stack {
 	 * @throws IndexOutOfBoundsException
 	 *             if the stack has fewer than 2 elements. */
 	public int deepPeek() throws IndexOutOfBoundsException {
-		if (stackPtr < 2) throw new IndexOutOfBoundsException(
+		if (size < 2) throw new IndexOutOfBoundsException(
 				"Cannot deep peek a stack with fewer than 2 elements!");
-		return stack[stackPtr - 2];
+		return stack[size - 2];
 	}
 
 	/** Clears the stack setting the stack pointer to 0. */
 	public void clear() {
-		stackPtr = 0;
+		size = 0;
 	}
 
 	/** Increases the max size of the stack by <code>size</code>.
@@ -105,7 +105,7 @@ public class Stack {
 
 	/** @return the number of elements in the stack */
 	public int getSize() {
-		return stackPtr;
+		return size;
 	}
 
 	/** @return the max stack size */
@@ -115,7 +115,7 @@ public class Stack {
 
 	/** @return if the stack is empty or not */
 	public boolean isEmpty() {
-		return stackPtr <= 0;
+		return size <= 0;
 	}
 
 	/** Returns the contents of the stack. Identical to {@link Stack#toDecimalString()}.
@@ -131,7 +131,7 @@ public class Stack {
 	 *
 	 * @return the string representation. */
 	public String toDecimalString() {
-		return IntStream.of(stack).limit(stackPtr).boxed().collect(Collectors.toList()).toString();
+		return IntStream.of(stack).limit(size).boxed().collect(Collectors.toList()).toString();
 	}
 
 	/** Returns the contents of the stack represented as hexadecimal numbers. Example:
@@ -139,7 +139,7 @@ public class Stack {
 	 *
 	 * @return the string representation. */
 	public String toHexString() {
-		return IntStream.of(stack).limit(stackPtr).mapToObj(v -> String.format("0x%02X", v))
+		return IntStream.of(stack).limit(size).mapToObj(v -> String.format("0x%02X", v))
 				.collect(Collectors.toList()).toString();
 	}
 }

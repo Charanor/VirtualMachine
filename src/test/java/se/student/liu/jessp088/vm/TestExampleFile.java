@@ -32,7 +32,7 @@ public class TestExampleFile {
 			final Bytecode result = parser.parse(tokens);
 			final VirtualMachine vm = new DefaultVirtualMachine(16, 1);
 			vm.execute(result);
-			assertEquals(vm.getError(), VMState.END_SUCCESS, vm.getCurrentState());
+			assertEquals(vm.getError(), VMState.END_SUCCESS, vm.getState());
 			assertEquals(168, vm.getStack().peek()); // 168 primes
 		} catch (IOException | LexerException | ParserException e) {
 			fail(e.toString());

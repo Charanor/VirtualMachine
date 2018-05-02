@@ -18,7 +18,7 @@ public class LexerTest {
 	private static Lexer lexer;
 
 	@BeforeClass
-	public static void setUp() throws Exception {
+	public static void setUp() {
 		lexer = new Lexer();
 	}
 

@@ -12,6 +12,7 @@ import static se.student.liu.jessp088.vm.parsing.TokenType.RIGHTBRACKET;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -30,7 +31,7 @@ import se.student.liu.jessp088.vm.parsing.util.ForwardDeclaration;
 public class Parser {
 	private static final int INVALID_INDEX = -1;
 
-	private LinkedList<Token> tokens;
+	private Deque<Token> tokens;
 	private Token next;
 
 	private Map<String, Integer> labels;
@@ -52,15 +53,22 @@ public class Parser {
 
 	public Parser(final InstructionSupplier instructionSupplier) {
 		this.supplier = instructionSupplier;
-	}
-
-	public Bytecode parse(final List<Token> input) throws ParserException {
 		this.labels = new HashMap<>();
 		this.definitions = new HashMap<>();
-		this.tokens = new LinkedList<>(input);
+		this.tokens = new LinkedList<>();
 		this.instructions = new ArrayList<>();
 		this.forwardDeclarations = new ArrayList<>();
 		this.ptrToLine = new HashMap<>();
+	}
+
+	public Bytecode parse(final List<Token> input) throws ParserException {
+		labels.clear();
+		definitions.clear();
+		tokens.clear();
+		tokens.addAll(input);
+		instructions.clear();
+		forwardDeclarations.clear();
+		ptrToLine.clear();
 
 		instructionPtr = 0;
 		lineNumber = 1; // Line numbers start at 1

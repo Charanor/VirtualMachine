@@ -38,7 +38,7 @@ public interface DebugListener {
 	 *
 	 * @param vm
 	 *            the virtual machine
-	 * @see VirtualMachine#getCurrentState()
+	 * @see VirtualMachine#getState()
 	 * @see VirtualMachine#getPreviousState() */
 	void onStateChanged(VirtualMachine vm);
 }
