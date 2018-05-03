@@ -12,9 +12,10 @@ import org.junit.Test;
 import se.student.liu.jessp088.vm.parsing.Lexer;
 import se.student.liu.jessp088.vm.parsing.Token;
 import se.student.liu.jessp088.vm.parsing.TokenType;
-import se.student.liu.jessp088.vm.parsing.exceptions.LexerException;
+import se.student.liu.jessp088.vm.parsing.LexerException;
 
-public class LexerTest {
+public class LexerTest
+{
 	private static Lexer lexer;
 
 	@BeforeClass
@@ -38,20 +39,22 @@ public class LexerTest {
 		builder.append(" "); // Separate text and number
 		// Implicit EOF
 
-		int idx = 0;
-		final List<Token> tokens = lexer.tokenizeRaw(builder.toString());
-		assertEquals(TokenType.WHITESPACE, tokens.get(idx++).type);
-		assertEquals(TokenType.COMMENT, tokens.get(idx++).type);
-		assertEquals(TokenType.NEXTOP, tokens.get(idx++).type);
-		assertEquals(TokenType.DEFTAG, tokens.get(idx++).type);
-		assertEquals(TokenType.DEFINE, tokens.get(idx++).type);
-		assertEquals(TokenType.EQUALS, tokens.get(idx++).type);
-		assertEquals(TokenType.NUMBER, tokens.get(idx++).type);
-		assertEquals(TokenType.LEFTBRACKET, tokens.get(idx++).type);
-		assertEquals(TokenType.RIGHTBRACKET, tokens.get(idx++).type);
-		assertEquals(TokenType.IDENTIFIER, tokens.get(idx++).type);
-		assertEquals(TokenType.WHITESPACE, tokens.get(idx++).type);
-		assertEquals(TokenType.EOF, tokens.get(tokens.size() - 1).type);
+		try {
+			int idx = 0;
+			final List<Token> tokens = lexer.tokenize(builder.toString());
+			assertEquals("Expected WHITESPACE got " + tokens.get(idx), TokenType.WHITESPACE, tokens.get(idx++).type);
+			assertEquals("Expected COMMENT got " + tokens.get(idx), TokenType.COMMENT, tokens.get(idx++).type);
+			assertEquals("Expected NEXTOP got " + tokens.get(idx), TokenType.NEXTOP, tokens.get(idx++).type);
+			assertEquals("Expected DEFTAG got " + tokens.get(idx), TokenType.DEFTAG, tokens.get(idx++).type);
+			assertEquals("Expected DEFINE got " + tokens.get(idx), TokenType.DEFINE, tokens.get(idx++).type);
+			assertEquals("Expected EQUALS got " + tokens.get(idx), TokenType.EQUALS, tokens.get(idx++).type);
+			assertEquals("Expected NUMBER got " + tokens.get(idx), TokenType.NUMBER, tokens.get(idx++).type);
+			assertEquals("Expected LEFTBRACKET got " + tokens.get(idx), TokenType.LEFTBRACKET, tokens.get(idx++).type);
+			assertEquals("Expected RIGHTBRACKET got " + tokens.get(idx), TokenType.RIGHTBRACKET, tokens.get(idx++).type);
+			assertEquals("Expected IDENTIFIER got " + tokens.get(idx), TokenType.IDENTIFIER, tokens.get(idx++).type);
+			assertEquals("Expected WHITESPACE got " + tokens.get(idx), TokenType.WHITESPACE, tokens.get(idx++).type);
+			assertEquals("Expected EOF got " + tokens.get(idx), TokenType.EOF, tokens.get(tokens.size() - 1).type);
+		} catch (LexerException e) {fail(e.toString());}
 	}
 
 	@Test

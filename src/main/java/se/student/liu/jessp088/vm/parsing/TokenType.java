@@ -16,7 +16,13 @@ public enum TokenType {
 	// ERROR MUST ALWAYS ALWAYS ALWAYS BE LAST
 	ERROR(".+");
 
+	/**
+	 * The regex pattern the token matches.
+	 */
 	public final String pattern;
+	/**
+	 * If the token should be ignored by the lexer when found.
+	 */
 	public final boolean ignore;
 
 	private TokenType(final String pattern) {

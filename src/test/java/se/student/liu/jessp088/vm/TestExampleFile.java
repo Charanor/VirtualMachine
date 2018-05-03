@@ -14,8 +14,8 @@ import org.junit.Test;
 import se.student.liu.jessp088.vm.parsing.Lexer;
 import se.student.liu.jessp088.vm.parsing.Parser;
 import se.student.liu.jessp088.vm.parsing.Token;
-import se.student.liu.jessp088.vm.parsing.exceptions.LexerException;
-import se.student.liu.jessp088.vm.parsing.exceptions.ParserException;
+import se.student.liu.jessp088.vm.parsing.LexerException;
+import se.student.liu.jessp088.vm.parsing.ParserException;
 
 public class TestExampleFile {
 	private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");

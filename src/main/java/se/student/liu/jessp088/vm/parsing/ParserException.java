@@ -1,4 +1,4 @@
-package se.student.liu.jessp088.vm.parsing.exceptions;
+package se.student.liu.jessp088.vm.parsing;
 
 public class ParserException extends Exception {
 	private static final long serialVersionUID = 1L;

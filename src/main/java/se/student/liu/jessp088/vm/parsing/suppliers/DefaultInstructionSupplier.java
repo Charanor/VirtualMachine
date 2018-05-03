@@ -28,10 +28,13 @@ import se.student.liu.jessp088.vm.instructions.meta.Free;
 import se.student.liu.jessp088.vm.instructions.meta.Malloc;
 import se.student.liu.jessp088.vm.instructions.meta.SizeTo;
 
+/**
+ * The default {@link InstructionSupplier}. Uses a long switch statement to manuallt decide what {@link Instruction} to return.
+ */
 public class DefaultInstructionSupplier implements InstructionSupplier
 {
-	@Override public Instruction getInstruction(final VMInstruction instruction, final int... args)
-		throws IllegalArgumentException
+	@Override
+	public Instruction getInstruction(final VMInstruction instruction, final int... args) throws IllegalArgumentException
 	{
 		switch (instruction) {
 			case LITERAL:

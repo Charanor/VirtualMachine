@@ -50,10 +50,11 @@ import se.student.liu.jessp088.vm.instructions.data.Store;
 import se.student.liu.jessp088.vm.parsing.Lexer;
 import se.student.liu.jessp088.vm.parsing.Parser;
 import se.student.liu.jessp088.vm.parsing.Token;
-import se.student.liu.jessp088.vm.parsing.exceptions.LexerException;
-import se.student.liu.jessp088.vm.parsing.exceptions.ParserException;
+import se.student.liu.jessp088.vm.parsing.LexerException;
+import se.student.liu.jessp088.vm.parsing.ParserException;
 
-public class GUI {
+public class GUI
+{
 	private static final int DEFAULT_MAX_STACK_SIZE = 128;
 	private static final int DEFAULT_MAX_VARIABLE_SIZE = 128;
 
@@ -94,15 +95,12 @@ public class GUI {
 
 	/** Launch the application. */
 	public static void main(final String[] args) {
-		EventQueue.invokeLater(new Runnable() {
+		EventQueue.invokeLater(new Runnable()
+		{
 			@Override
 			public void run() {
-				try {
-					final GUI window = new GUI();
-					window.frame.setVisible(true);
-				} catch (final Exception e) {
-					e.printStackTrace();
-				}
+				final GUI window = new GUI();
+				window.frame.setVisible(true);
 			}
 		});
 	}
@@ -144,8 +142,7 @@ public class GUI {
 		fileMenu.add(openOption);
 
 		final JMenuItem exitOption = new JMenuItem("Exit");
-		exitOption.addActionListener(
-				e -> frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING)));
+		exitOption.addActionListener(e -> frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING)));
 
 		final JMenuItem closeOption = new JMenuItem("Close");
 		closeOption.setIcon(CLOSE_ICON);
@@ -165,8 +162,7 @@ public class GUI {
 
 		final JMenuItem debugOption = new JMenuItem("Debug");
 		debugOption.setIcon(DEBUG_ICON);
-		debugOption.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK | InputEvent.ALT_MASK));
+		debugOption.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK | InputEvent.ALT_MASK));
 		debugOption.addActionListener(this::debugCodeInOpenTab);
 		runMenu.add(debugOption);
 
@@ -188,15 +184,14 @@ public class GUI {
 		runMenu.add(pauseOption);
 
 		stopOption = new JMenuItem("Stop Execution");
-		stopOption.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK | InputEvent.ALT_MASK));
+		stopOption.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK | InputEvent.ALT_MASK));
 		stopOption.setEnabled(false);
 		stopOption.setIcon(STOP_ICON);
 		stopOption.addActionListener(this::stopExecution);
 		runMenu.add(stopOption);
 
-		final JSeparator separator_1 = new JSeparator();
-		runMenu.add(separator_1);
+		final JSeparator separator1 = new JSeparator();
+		runMenu.add(separator1);
 
 		final JMenuItem configurationOption = new JMenuItem("Run Configuration...");
 		runMenu.add(configurationOption);
@@ -284,7 +279,8 @@ public class GUI {
 		codePanel.add(lineInfoLabel, BorderLayout.SOUTH);
 
 		// Listener to add variables to table
-		vm.addDebugListener(new DebugListener() {
+		vm.addDebugListener(new DebugListener()
+		{
 			@Override
 			public void beforeExecution(final VirtualMachine vm) {
 				final int numRows = variableTable.getModel().getRowCount();
@@ -337,8 +333,7 @@ public class GUI {
 		text.addCaretListener(e -> {
 			try {
 				final int lineNumber = lineNumberAtCursor();
-				final int column = text.getCaretPosition()
-						- text.getLineStartOffset(lineNumber - 1);
+				final int column = text.getCaretPosition() - text.getLineStartOffset(lineNumber - 1);
 				lineInfoLabel.setText("Line: " + lineNumber + ", Column: " + column);
 			} catch (final Exception ignored) {
 			}
@@ -351,8 +346,7 @@ public class GUI {
 		programTabs.addTab(tabName, PROGRAM_ICON, codeScrollPane, null);
 	}
 
-	private void openNewExtrasTab(final String tabName, final JComponent tabContents,
-			final Icon icon) {
+	private void openNewExtrasTab(final String tabName, final JComponent tabContents, final Icon icon) {
 		extrasTabs.addTab(tabName, icon, new JScrollPane(tabContents), null);
 	}
 
@@ -394,8 +388,7 @@ public class GUI {
 		if (option == JFileChooser.APPROVE_OPTION) {
 			final File chosen = fc.getSelectedFile();
 			try {
-				openNewProgramTab(chosen.getName(),
-						new String(Files.readAllBytes(chosen.toPath())));
+				openNewProgramTab(chosen.getName(), new String(Files.readAllBytes(chosen.toPath())));
 				programTabs.setSelectedIndex(programTabs.getTabCount() - 1);
 			} catch (final IOException e1) {
 				e1.printStackTrace();
@@ -440,8 +433,7 @@ public class GUI {
 		if (selectedIdx < 0) return;
 		if (selectedIdx == 0 && programTabs.getTabCount() > 1) {
 			programTabs.setSelectedIndex(selectedIdx + 1);
-		} else
-			programTabs.setSelectedIndex(selectedIdx - 1);
+		} else programTabs.setSelectedIndex(selectedIdx - 1);
 		programTabs.removeTabAt(selectedIdx);
 	}
 
