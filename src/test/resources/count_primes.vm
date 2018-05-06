@@ -19,59 +19,59 @@
 literal 0
 
 [start]
-	load #n
-	literal #END_VALUE
-	cmp
-	jmpGE end
-	call is_prime
-	jmpEQ skip_inc
-	literal 1
-	add
-	
-	[skip_inc]
-	load #n
-	literal 1
-	add
-	store #n
-	jmp start
-	
-	[is_prime]
-		load #n
-		literal 0x02
-		mod
-		jmpEQ is_mod_2
-		call check_mod_i
-		return
-		
-		[is_mod_2]
-		literal 0x00
-		return
-	
-		[check_mod_i]
-		literal 3
-		[check_mod_i_start]
-		dup		
-		dup
-		mul
-		load #n
-		cmp 
-		jmp_GT check_mod_i_exit
-		dup
-		load #n
-		swap
-		mod
-		jmpNE not_zero
-		discard
-		literal 0x00
-		return
-		
-		[not_zero]
-		literal 2
-		add
-		jmp check_mod_i_start
-		
-		[check_mod_i_exit]
-		discard
-		literal 0xff
-		return
+    load #n
+    literal #END_VALUE
+    cmp
+    jmpGE end
+    call is_prime
+    jmpEQ skip_inc
+    literal 1
+    add
+    
+[skip_inc]
+    load #n
+    literal 1
+    add
+    store #n
+    jmp start
+    
+[is_prime]
+    load #n
+    literal 0x02
+    mod
+    jmpEQ is_mod_2
+    call check_mod_i
+    return
+        
+[is_mod_2]
+    literal 0x00
+    return
+    
+[check_mod_i]
+    literal 3
+[check_mod_i_start]
+    dup        
+    dup
+    mul
+    load #n
+    cmp 
+    jmpGT check_mod_i_exit
+    dup
+    load #n
+    swap
+    mod
+    jmpNE not_zero
+    discard
+    literal 0x00
+    return
+        
+[not_zero]
+    literal 2
+    add
+    jmp check_mod_i_start
+        
+[check_mod_i_exit]
+    discard
+    literal 0xff
+    return
 [end]

@@ -8,9 +8,11 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -19,7 +21,7 @@ import java.util.concurrent.Executors;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -76,6 +78,9 @@ public class GUI {
 	private Lexer lexer;
 	private Parser parser;
 	private VirtualMachine vm;
+	private boolean step;
+	private boolean wasPaused;
+	private boolean autoClear;
 
 	private JFrame frame;
 	private JFileChooser fc;
@@ -198,18 +203,12 @@ public class GUI {
 		final JSeparator separator_1 = new JSeparator();
 		runMenu.add(separator_1);
 
-		final JMenuItem configurationOption = new JMenuItem("Run Configuration...");
-		runMenu.add(configurationOption);
-
 		final JMenu debugMenu = new JMenu("Debug");
 		menuBar.add(debugMenu);
 
 		final JMenuItem addBreakpointOption = new JMenuItem("Add Breakpoint at Cursor");
 		addBreakpointOption.addActionListener(this::addBreakpointAtCursor);
 		debugMenu.add(addBreakpointOption);
-
-		final JMenuItem clearConsoleOption = new JMenuItem("Clear console");
-		clearConsoleOption.addActionListener(e -> consoleTextArea.setText(""));
 
 		final JMenuItem removeBreakpointOption = new JMenuItem("Remove Breakpoint at Cursor");
 		removeBreakpointOption.addActionListener(this::removeBreakpointAtCursor);
@@ -218,13 +217,24 @@ public class GUI {
 		final JMenuItem removeAllOption = new JMenuItem("Remove all Breakpoints");
 		removeAllOption.addActionListener(e -> vm.removeAllBreakpoints());
 		debugMenu.add(removeAllOption);
-		debugMenu.add(clearConsoleOption);
 
-		configurationOption.addActionListener(e -> {
-			final RunConfigDialog dialog = new RunConfigDialog(frame);
+		step = false;
+		wasPaused = false;
+		final JCheckBoxMenuItem toggleStepOption = new JCheckBoxMenuItem("Step code");
+		toggleStepOption.addActionListener(e -> step = toggleStepOption.isSelected());
 
-			dialog.setVisible(true);
-		});
+		final JMenu consoleMenuOption = new JMenu("Console...");
+		debugMenu.add(consoleMenuOption);
+
+		final JMenuItem clearConsoleOption = new JMenuItem("Clear console");
+		consoleMenuOption.add(clearConsoleOption);
+
+		this.autoClear = false;
+		final JCheckBoxMenuItem autoClearOption = new JCheckBoxMenuItem("Clear console on Run");
+		autoClearOption.addActionListener(e -> this.autoClear = autoClearOption.isSelected());
+		consoleMenuOption.add(autoClearOption);
+		clearConsoleOption.addActionListener(e -> consoleTextArea.setText(""));
+		debugMenu.add(toggleStepOption);
 
 		final Object[] columnNames = new Object[] { "Variable", "Value" };
 
@@ -235,16 +245,7 @@ public class GUI {
 
 		programTabs = new JTabbedPane(SwingConstants.TOP);
 
-		// final JTextArea codeTextArea = new JTextArea();
-		// codeTextArea.setBorder(new LineBorder(Color.GRAY));
-		// codeTextArea.setFont(CODE_FONT);
-		// final JScrollPane codeScrollPane = new
-		// JScrollPane(codeTextArea);
-		// scrollPane.setRowHeaderView(new
-		// TextLineNumber(codeTextArea));
 		openNewProgramTab("Program", null);
-		// programTabs.addTab("Program", PROGRAM_ICON, codeScrollPane,
-		// null);
 
 		extrasTabs = new JTabbedPane(SwingConstants.TOP);
 		programExtrasSplitter.setRightComponent(extrasTabs);
@@ -273,7 +274,10 @@ public class GUI {
 		extrasTabs.addTab("Stack", STACK_ICON, stackScrollPane, null);
 
 		// Redirect logging to GUI console
-		new MessageConsole(consoleTextArea).redirectOut();
+		// Closed below in the WindowListener
+		final PrintStream newOut = new PrintStream(new Console(consoleTextArea));
+		final PrintStream oldOut = System.out;
+		System.setOut(newOut);
 
 		final JPanel codePanel = new JPanel();
 		programExtrasSplitter.setLeftComponent(codePanel);
@@ -282,6 +286,15 @@ public class GUI {
 
 		lineInfoLabel = new JLabel("Line: 0, Column: 0");
 		codePanel.add(lineInfoLabel, BorderLayout.SOUTH);
+
+		frame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(final WindowEvent e) {
+				System.setOut(oldOut); // Restore PrintStream
+				newOut.close(); // Close the new PrintStream
+				e.getWindow().dispose(); // Dispose of the window
+			}
+		});
 
 		// Listener to add variables to table
 		vm.addDebugListener(new DebugListener() {
@@ -305,11 +318,17 @@ public class GUI {
 
 			@Override
 			public void beforeInstruction(final VirtualMachine vm) {
+				if (step && !wasPaused) {
+					vm.pauseExecution();
+					wasPaused = true;
+				} else
+					wasPaused = false;
 			}
 
 			@Override
 			public void afterInstruction(final VirtualMachine vm) {
-				stackTextArea.setText(vm.getStack().toString());
+				stackTextArea.append(vm.getStack().toString());
+				stackTextArea.append("\n");
 
 				final Instruction ins = vm.getCurrentInstruction();
 				if (!(ins instanceof Store)) return;
@@ -344,16 +363,8 @@ public class GUI {
 			}
 		});
 
-		final TextLineNumber lineNumbers = new TextLineNumber(text);
 		final JScrollPane codeScrollPane = new JScrollPane(text);
-		// codeScrollPane.setRowHeaderView(lineNumbers);
-
 		programTabs.addTab(tabName, PROGRAM_ICON, codeScrollPane, null);
-	}
-
-	private void openNewExtrasTab(final String tabName, final JComponent tabContents,
-			final Icon icon) {
-		extrasTabs.addTab(tabName, icon, new JScrollPane(tabContents), null);
 	}
 
 	private Bytecode parseCodeInOpenTab() {
@@ -363,7 +374,7 @@ public class GUI {
 		try {
 			tokens = lexer.tokenize(codeArea.getText());
 		} catch (final LexerException e1) {
-			addConsoleMessage(String.format("Error during lexing: %s.\n", e1));
+			addConsoleMessage("Error during lexing: %s.\n", e1);
 			return null;
 		}
 
@@ -407,6 +418,7 @@ public class GUI {
 		final Bytecode result = parseCodeInOpenTab();
 		if (result == null) return;
 
+		if (autoClear) consoleTextArea.setText("");
 		executor.execute(() -> {
 			vm.stopExecution();
 			vm.execute(result);
@@ -417,6 +429,7 @@ public class GUI {
 		final Bytecode result = parseCodeInOpenTab();
 		if (result == null) return;
 
+		if (autoClear) consoleTextArea.setText("");
 		executor.execute(() -> {
 			vm.stopExecution();
 			vm.debug(result);
