@@ -16,7 +16,7 @@ import se.student.liu.jessp088.vm.instructions.data.Load;
 import se.student.liu.jessp088.vm.parsing.Parser;
 import se.student.liu.jessp088.vm.parsing.Token;
 import se.student.liu.jessp088.vm.parsing.TokenType;
-import se.student.liu.jessp088.vm.parsing.exceptions.ParserException;
+import se.student.liu.jessp088.vm.parsing.ParserException;
 import se.student.liu.jessp088.vm.parsing.suppliers.ReflectionSupplier;
 
 public class ParserTest {

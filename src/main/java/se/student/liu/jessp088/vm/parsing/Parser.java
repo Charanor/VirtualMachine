@@ -12,6 +12,7 @@ import static se.student.liu.jessp088.vm.parsing.TokenType.RIGHTBRACKET;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -22,15 +23,19 @@ import java.util.NoSuchElementException;
 import se.student.liu.jessp088.vm.Bytecode;
 import se.student.liu.jessp088.vm.VMInstruction;
 import se.student.liu.jessp088.vm.instructions.Instruction;
-import se.student.liu.jessp088.vm.parsing.exceptions.ParserException;
 import se.student.liu.jessp088.vm.parsing.suppliers.DefaultInstructionSupplier;
 import se.student.liu.jessp088.vm.parsing.suppliers.InstructionSupplier;
 import se.student.liu.jessp088.vm.parsing.util.ForwardDeclaration;
 
-public class Parser {
+/**
+ * A parser that takes a list of {@link Token} and generates a {@link Bytecode} object that a
+ * {@link se.student.liu.jessp088.vm.VirtualMachine} can process. The parser uses recursive-descent LL(1) grammar to parse.
+ */
+public class Parser
+{
 	private static final int INVALID_INDEX = -1;
 
-	private LinkedList<Token> tokens;
+	private Deque<Token> tokens;
 	private Token next;
 
 	private Map<String, Integer> labels;
@@ -52,15 +57,23 @@ public class Parser {
 
 	public Parser(final InstructionSupplier instructionSupplier) {
 		this.supplier = instructionSupplier;
-	}
-
-	public Bytecode parse(final List<Token> input) throws ParserException {
 		this.labels = new HashMap<>();
 		this.definitions = new HashMap<>();
-		this.tokens = new LinkedList<>(input);
+		this.tokens = new LinkedList<>();
 		this.instructions = new ArrayList<>();
 		this.forwardDeclarations = new ArrayList<>();
 		this.ptrToLine = new HashMap<>();
+		this.next = null;
+	}
+
+	public Bytecode parse(final List<Token> input) throws ParserException {
+		labels.clear();
+		definitions.clear();
+		tokens.clear();
+		tokens.addAll(input);
+		instructions.clear();
+		forwardDeclarations.clear();
+		ptrToLine.clear();
 
 		instructionPtr = 0;
 		lineNumber = 1; // Line numbers start at 1
@@ -132,8 +145,7 @@ public class Parser {
 			if (nextTypeIs(IDENTIFIER)) {
 				final String label = next.value;
 				if (!labels.containsKey(label)) {
-					forwardDeclarations
-							.add(new ForwardDeclaration(instruction, instructionPtr, label));
+					forwardDeclarations.add(new ForwardDeclaration(instruction, instructionPtr, label));
 				}
 				final float instructionIdx = labels.getOrDefault(label, INVALID_INDEX);
 				args.add(instructionIdx);
@@ -149,8 +161,7 @@ public class Parser {
 		}
 
 		final int[] array = new int[args.size()];
-		for (int i = 0; i < array.length; i++)
-			array[i] = args.get(i).intValue();
+		for (int i = 0; i < array.length; i++) { array[i] = args.get(i).intValue(); }
 		addInstruction(instruction, array);
 		instructionProcessed();
 	}
@@ -194,12 +205,10 @@ public class Parser {
 		}
 	}
 
-	private void addInstruction(final VMInstruction instruction, final int... args)
-			throws ParserException {
+	private void addInstruction(final VMInstruction instruction, final int... args) throws ParserException {
 		if (args.length != instruction.numArguments) {
 			final String format = "Invalid number of arguments for instruction %s on line %s. Expected %s got %s";
-			throw new ParserException(format, instruction, lineNumber, instruction.numArguments,
-					args.length);
+			throw new ParserException(format, instruction, lineNumber, instruction.numArguments, args.length);
 		}
 		try {
 			instructions.add(supplier.getInstruction(instruction, args));
@@ -214,8 +223,7 @@ public class Parser {
 	}
 
 	private void createLabel(final String label) throws ParserException {
-		if (labels.containsKey(label))
-			throw new ParserException("Label %s on line %s already defined!", label, lineNumber);
+		if (labels.containsKey(label)) throw new ParserException("Label %s on line %s already defined!", label, lineNumber);
 		labels.put(label, instructionPtr);
 	}
 
@@ -227,11 +235,13 @@ public class Parser {
 
 	private int getConstant(final String name) throws ParserException {
 		if (!definitions.containsKey(name))
-			throw new ParserException("Constant %s on line %s has not been defined!", name,
-					lineNumber);
+			throw new ParserException("Constant %s on line %s has not been defined!", name, lineNumber);
 		return definitions.get(name);
 	}
 
+	/**
+	 * Gets the next token of the token stream.
+	 */
 	private void next() {
 		if (next != null && next.type == NEXTOP) lineNumber++;
 		try {
@@ -242,22 +252,39 @@ public class Parser {
 		}
 	}
 
-	private void next(final TokenType nextToken) throws ParserException {
+	/**
+	 * Gets the next token of the token stream and ensures its type.
+	 *
+	 * @param expectedToken the expected token to find.
+	 *
+	 * @throws ParserException if the expected token was not found
+	 */
+	private void next(final TokenType expectedToken) throws ParserException {
 		next();
-		ensureNextType(nextToken);
+		ensureNextType(expectedToken);
 	}
 
+	/**
+	 * Ensures that the token is a specific type.
+	 *
+	 * @param t the type
+	 *
+	 * @throws ParserException if the next token is not that type
+	 */
 	private void ensureNextType(final TokenType t) throws ParserException {
 		if (next == null) throw new ParserException("Unexpected EOF! Expected token %s", t);
 		if (!nextTypeIs(t))
-			throw new ParserException("Expected token on line %s. Expected %s got %s", lineNumber,
-					t, next.type);
+			throw new ParserException("Expected token on line %s. Expected %s got %s", lineNumber, t, next.type);
 	}
 
+	/**
+	 * @param types the types to compare to
+	 *
+	 * @return if the next token is one of the supplied types
+	 */
 	private boolean nextTypeIs(final TokenType... types) {
 		if (next == null) return false;
-		for (final TokenType t : types)
-			if (next.type == t) return true;
+		for (final TokenType t : types) { if (next.type == t) return true; }
 		return false;
 	}
 }

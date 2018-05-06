@@ -50,10 +50,10 @@ import se.student.liu.jessp088.vm.VirtualMachine;
 import se.student.liu.jessp088.vm.instructions.Instruction;
 import se.student.liu.jessp088.vm.instructions.data.Store;
 import se.student.liu.jessp088.vm.parsing.Lexer;
+import se.student.liu.jessp088.vm.parsing.LexerException;
 import se.student.liu.jessp088.vm.parsing.Parser;
+import se.student.liu.jessp088.vm.parsing.ParserException;
 import se.student.liu.jessp088.vm.parsing.Token;
-import se.student.liu.jessp088.vm.parsing.exceptions.LexerException;
-import se.student.liu.jessp088.vm.parsing.exceptions.ParserException;
 
 public class GUI {
 	private static final int DEFAULT_MAX_STACK_SIZE = 128;
@@ -102,12 +102,8 @@ public class GUI {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				try {
-					final GUI window = new GUI();
-					window.frame.setVisible(true);
-				} catch (final Exception e) {
-					e.printStackTrace();
-				}
+				final GUI window = new GUI();
+				window.frame.setVisible(true);
 			}
 		});
 	}
@@ -200,8 +196,8 @@ public class GUI {
 		stopOption.addActionListener(this::stopExecution);
 		runMenu.add(stopOption);
 
-		final JSeparator separator_1 = new JSeparator();
-		runMenu.add(separator_1);
+		final JSeparator separator1 = new JSeparator();
+		runMenu.add(separator1);
 
 		final JMenu debugMenu = new JMenu("Debug");
 		menuBar.add(debugMenu);

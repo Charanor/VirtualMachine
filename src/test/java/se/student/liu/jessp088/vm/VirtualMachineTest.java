@@ -45,7 +45,7 @@ public class VirtualMachineTest {
 	@Test
 	public void testExecute() {
 		vm.execute(code);
-		assertEquals(vm.getError(), VMState.END_SUCCESS, vm.getCurrentState());
+		assertEquals(vm.getError(), VMState.END_SUCCESS, vm.getState());
 
 		final Stack s = vm.getStack();
 		final Variables v = vm.getVariables();
@@ -84,10 +84,10 @@ public class VirtualMachineTest {
 		vm.addDebugListener(listener);
 		vm.execute(code);
 
-		assertEquals(VMState.PAUSE_USER, vm.getCurrentState());
+		assertEquals(VMState.PAUSE_USER, vm.getState());
 		vm.removeDebugListener(listener);
 		vm.resumeExecution();
-		assertEquals(vm.getError(), VMState.END_SUCCESS, vm.getCurrentState());
+		assertEquals(vm.getError(), VMState.END_SUCCESS, vm.getState());
 	}
 
 	@Test
@@ -118,10 +118,10 @@ public class VirtualMachineTest {
 		vm.addDebugListener(listener);
 		vm.execute(code);
 
-		assertEquals(VMState.END_USER, vm.getCurrentState());
+		assertEquals(VMState.END_USER, vm.getState());
 		vm.removeDebugListener(listener); // Don't stop next time
 		vm.resumeExecution(); // Make sure resume does not actually resume
-		assertEquals(vm.getError(), VMState.END_USER, vm.getCurrentState());
+		assertEquals(vm.getError(), VMState.END_USER, vm.getState());
 	}
 
 	@Test
@@ -131,19 +131,19 @@ public class VirtualMachineTest {
 
 		vm.debug(code);
 
-		assertEquals(vm.getError(), VMState.PAUSE_BREAKPOINT, vm.getCurrentState());
+		assertEquals(vm.getError(), VMState.PAUSE_BREAKPOINT, vm.getState());
 		final int shouldBe4 = vm.getStack().pop();
 		vm.getStack().push(shouldBe4);
 		assertEquals(4, shouldBe4);
 
 		vm.resumeExecution();
-		assertEquals(vm.getError(), VMState.PAUSE_BREAKPOINT, vm.getCurrentState());
+		assertEquals(vm.getError(), VMState.PAUSE_BREAKPOINT, vm.getState());
 		final int shouldBe1 = vm.getStack().pop();
 		vm.getStack().push(shouldBe1);
 		assertEquals(1, shouldBe1);
 
 		vm.resumeExecution();
-		assertEquals(vm.getError(), VMState.END_SUCCESS, vm.getCurrentState());
+		assertEquals(vm.getError(), VMState.END_SUCCESS, vm.getState());
 	}
 
 	@Test
@@ -173,9 +173,9 @@ public class VirtualMachineTest {
 		});
 
 		vm.execute(code);
-		assertEquals(vm.getError(), VMState.PAUSE_USER, vm.getCurrentState());
+		assertEquals(vm.getError(), VMState.PAUSE_USER, vm.getState());
 		vm.stopExecution();
-		assertEquals(vm.getError(), VMState.END_USER, vm.getCurrentState());
+		assertEquals(vm.getError(), VMState.END_USER, vm.getState());
 	}
 
 }

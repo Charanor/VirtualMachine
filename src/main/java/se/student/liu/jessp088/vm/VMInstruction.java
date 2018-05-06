@@ -64,7 +64,14 @@ public enum VMInstruction {
 	FREE(1, Free.class),
 	SIZETO(1, SizeTo.class),;
 
+	/**
+	 * The number of arguments the instruction takes.
+	 */
 	public final int numArguments;
+	/**
+	 * The class object that represents the instruction.
+	 * Used by {@link se.student.liu.jessp088.vm.parsing.suppliers.ReflectionSupplier}.
+	 */
 	public final Class<? extends Instruction> instructionClass;
 
 	private VMInstruction(final int numArguments,

@@ -1,10 +1,10 @@
 // Parsing rules
-compilationUnit := definitions expressions EOF
+compilationUnit 	:= definitions expressions EOF
 
 definitions		:= definition*
-definition      := DEFTAG DEFINE IDENTIFIER EQUALS NUMBER NEXTOP
+definition      	:= DEFTAG DEFINE IDENTIFIER EQUALS NUMBER NEXTOP
 
-expressions     := expression*
+expressions     	:= expression*
 expression		:= (instruction | label) NEXTOP
 				   
 instruction		:= IDENTIFIER (IDENTIFIER | NUMBER | taggedId)*
@@ -18,7 +18,7 @@ DEFTAG 			:= "#"
 DEFINE			:= "define"
 EQUALS			:= "="
 LEFTBRACKET		:= "["
-RIGHTBRACKET	:= "]"
+RIGHTBRACKET		:= "]"
 
 IDENTIFIER		:= "[a-zA-Z][a-zA-Z0-9]*"
 NUMBER 			:= "[0-9](\.[0-9]+)?"

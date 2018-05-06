@@ -11,7 +11,11 @@ import org.slf4j.LoggerFactory;
 import se.student.liu.jessp088.vm.instructions.Instruction;
 import se.student.liu.jessp088.vm.instructions.InstructionException;
 
-public class DefaultVirtualMachine implements VirtualMachine {
+/**
+ * The default implementation of a {@link VirtualMachine}.
+ */
+public class DefaultVirtualMachine implements VirtualMachine
+{
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultVirtualMachine.class);
 
 	private final Stack stack;
@@ -34,16 +38,18 @@ public class DefaultVirtualMachine implements VirtualMachine {
 		variables = new Variables(maxVariableSize);
 		listeners = new ArrayList<>();
 		breakpoints = new ArrayList<>();
-		previousState = state = END_SUCCESS;
+		state = END_SUCCESS;
+		previousState = END_SUCCESS;
 	}
 
-	/** {@inheritDoc}
+	/**
+	 * {@inheritDoc}
 	 * <p>
 	 * The {@link DefaultVirtualMachine} implementation is an <b>infinite loop</b> that can only be
 	 * broken by calling {@link DefaultVirtualMachine#stopExecution()} or if the code execution is
 	 * stopped either by error or by finishing successfully.
 	 * </p>
-	*/
+	 */
 	@Override
 	public void execute(final Bytecode code) throws IllegalStateException {
 		if (!isStopped()) {
@@ -77,8 +83,7 @@ public class DefaultVirtualMachine implements VirtualMachine {
 		}
 		// catch listener pause or stop
 		if (!isRunning()) {
-			LOGGER.debug(
-					"Virtual machine was stopped by a listener before processing could begin.");
+			LOGGER.debug("Virtual machine was stopped by a listener before processing could begin.");
 			return;
 		}
 
@@ -86,8 +91,7 @@ public class DefaultVirtualMachine implements VirtualMachine {
 			if (wasAtBreakpoint) {
 				// We don't want to break on the same line twice
 				wasAtBreakpoint = false;
-				LOGGER.trace("Skipping breakpoint on pointer {} (already executed).",
-						currentCode.getPtr());
+				LOGGER.trace("Skipping breakpoint on pointer {} (already executed).", currentCode.getPtr());
 			} else if (debug && isBreakpointAt(currentCode.getPtr())) {
 				wasAtBreakpoint = true;
 				LOGGER.debug("Hit breakpoint at pointer {}.", currentCode.getPtr());
@@ -99,8 +103,7 @@ public class DefaultVirtualMachine implements VirtualMachine {
 
 			beforeInstruction();
 			if (!isRunning()) {
-				LOGGER.debug(
-						"Virtual machine stopped by listener before instruction could be processed.");
+				LOGGER.debug("Virtual machine stopped by listener before instruction could be processed.");
 				// Revert to previous instruction or we will skip an instruction
 				code.setPtr(code.getPtr() - 1);
 				LOGGER.trace("Reverting instruction pointer.");
@@ -108,13 +111,12 @@ public class DefaultVirtualMachine implements VirtualMachine {
 			}
 
 			try {
-				LOGGER.trace("Processing instruction {}: {}.", currentCode.getPtr() - 1,
-						currentInstruction);
+				LOGGER.trace("Processing instruction {}: {}.", currentCode.getPtr() - 1, currentInstruction);
 				currentInstruction.process(stack, code, variables);
 				afterInstruction();
 			} catch (final InstructionException e) {
-				this.error = String.format("Error executing instruction %s on line %s: %s",
-						currentInstruction, getCurrentLineNumber(), e);
+				this.error = String
+					.format("Error executing instruction %s on line %s: %s", currentInstruction, getCurrentLineNumber(), e);
 				LOGGER.error(error);
 
 				currentCode.setPtr(0);
@@ -156,8 +158,7 @@ public class DefaultVirtualMachine implements VirtualMachine {
 		}
 
 		if (!wasRunning()) {
-			LOGGER.error("Cannot resume from state {} when previous state was {}!", state,
-					previousState);
+			LOGGER.error("Cannot resume from state {} when previous state was {}!", state, previousState);
 			final String format = "Cannot resume from state %s when previous state was %s!";
 			throw new IllegalStateException(String.format(format, state, previousState));
 		}
@@ -180,7 +181,7 @@ public class DefaultVirtualMachine implements VirtualMachine {
 	}
 
 	@Override
-	public VMState getCurrentState() {
+	public VMState getState() {
 		return state;
 	}
 
@@ -210,8 +211,7 @@ public class DefaultVirtualMachine implements VirtualMachine {
 		if (!isBreakpointAt(instructionPtr)) {
 			LOGGER.trace("Adding breakpoint at {}", instructionPtr);
 			breakpoints.add(instructionPtr);
-		} else
-			LOGGER.trace("Already a breakpoint at {}.", instructionPtr);
+		} else LOGGER.trace("Already a breakpoint at {}.", instructionPtr);
 	}
 
 	@Override
@@ -220,8 +220,7 @@ public class DefaultVirtualMachine implements VirtualMachine {
 			LOGGER.trace("Removing breakpoint at {}", instructionPtr);
 			// Must cast otherwise it uses the wrong remove() method
 			breakpoints.remove((Integer) instructionPtr);
-		} else
-			LOGGER.trace("No breakpoint at {} to remove.", instructionPtr);
+		} else LOGGER.trace("No breakpoint at {} to remove.", instructionPtr);
 	}
 
 	@Override
@@ -320,9 +319,7 @@ public class DefaultVirtualMachine implements VirtualMachine {
 
 	private void setState(final VMState state) {
 		if (this.state == state) {
-			LOGGER.trace(
-					"Attempt to set state to {} when virtual machine was already in that state!",
-					state);
+			LOGGER.trace("Attempt to set state to {} when virtual machine was already in that state!", state);
 			return;
 		}
 
