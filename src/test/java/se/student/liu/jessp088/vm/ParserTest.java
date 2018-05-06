@@ -19,8 +19,11 @@ import se.student.liu.jessp088.vm.parsing.TokenType;
 import se.student.liu.jessp088.vm.parsing.ParserException;
 import se.student.liu.jessp088.vm.parsing.suppliers.ReflectionSupplier;
 
+/**
+ * Tests the {@link Parser} class.
+ */
 public class ParserTest {
-	private Parser parser;
+	private Parser parser = null;
 
 	@Before
 	public void setUp() {

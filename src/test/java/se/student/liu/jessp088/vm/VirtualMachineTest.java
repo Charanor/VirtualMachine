@@ -17,9 +17,12 @@ import se.student.liu.jessp088.vm.instructions.control.Jmp;
 import se.student.liu.jessp088.vm.instructions.data.Load;
 import se.student.liu.jessp088.vm.instructions.data.Store;
 
+/**
+ * Tests the {@link VirtualMachine} class.
+ */
 public class VirtualMachineTest {
-	private Bytecode code;
-	private VirtualMachine vm;
+	private Bytecode code = null;
+	private VirtualMachine vm = null;
 
 	@Before
 	public void beforeClass() {

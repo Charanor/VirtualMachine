@@ -2,7 +2,11 @@ package se.student.liu.jessp088.vm.instructions.meta;
 
 import se.student.liu.jessp088.vm.instructions.OneArgInstruction;
 
-public class Free extends OneArgInstruction {
+/**
+ * Shrinks the stack.
+ */
+public class Free extends OneArgInstruction
+{
 
 	public Free(final int arg) {
 		super(arg);

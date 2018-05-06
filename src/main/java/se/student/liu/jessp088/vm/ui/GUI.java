@@ -18,25 +18,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
@@ -55,7 +37,12 @@ import se.student.liu.jessp088.vm.parsing.Parser;
 import se.student.liu.jessp088.vm.parsing.ParserException;
 import se.student.liu.jessp088.vm.parsing.Token;
 
-public class GUI {
+/**
+ * The GUI window also known as the "IDE". Takes care of constructing and showing the main window
+ * and serves as the entry point into the program.
+ */
+public class GUI
+{
 	private static final int DEFAULT_MAX_STACK_SIZE = 128;
 	private static final int DEFAULT_MAX_VARIABLE_SIZE = 128;
 
@@ -73,6 +60,9 @@ public class GUI {
 
 	private static final Font CODE_FONT = new Font("Consolas", Font.PLAIN, 12);
 
+	private static final int WINDOW_WIDTH = 820;
+	private static final int WINDOW_HEIGHT = 540;
+
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	private Lexer lexer;
@@ -85,12 +75,9 @@ public class GUI {
 	private JFrame frame;
 	private JFileChooser fc;
 	private JTabbedPane programTabs;
-	private JTabbedPane extrasTabs;
 	private JTextArea consoleTextArea;
 	private JTable variableTable;
 
-	private final int maxStackSize = DEFAULT_MAX_STACK_SIZE;
-	private final int maxVariableSize = DEFAULT_MAX_VARIABLE_SIZE;
 	private JMenuItem resumeOption;
 	private JMenuItem pauseOption;
 	private JMenuItem stopOption;
@@ -99,7 +86,8 @@ public class GUI {
 
 	/** Launch the application. */
 	public static void main(final String[] args) {
-		EventQueue.invokeLater(new Runnable() {
+		EventQueue.invokeLater(new Runnable()
+		{
 			@Override
 			public void run() {
 				final GUI window = new GUI();
@@ -117,12 +105,12 @@ public class GUI {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setTitle("Virtual Machine IDE");
-		frame.setBounds(100, 100, 820, 540);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setBounds(100, 100, WINDOW_WIDTH, WINDOW_HEIGHT);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
 		lexer = new Lexer();
 		parser = new Parser();
-		vm = new DefaultVirtualMachine(maxStackSize, maxVariableSize);
+		vm = new DefaultVirtualMachine(DEFAULT_MAX_STACK_SIZE, DEFAULT_MAX_VARIABLE_SIZE);
 
 		fc = new JFileChooser();
 		fc.setFileFilter(new FileNameExtensionFilter(".vm files", "vm"));
@@ -145,8 +133,7 @@ public class GUI {
 		fileMenu.add(openOption);
 
 		final JMenuItem exitOption = new JMenuItem("Exit");
-		exitOption.addActionListener(
-				e -> frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING)));
+		exitOption.addActionListener(e -> frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING)));
 
 		final JMenuItem closeOption = new JMenuItem("Close");
 		closeOption.setIcon(CLOSE_ICON);
@@ -166,8 +153,7 @@ public class GUI {
 
 		final JMenuItem debugOption = new JMenuItem("Debug");
 		debugOption.setIcon(DEBUG_ICON);
-		debugOption.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK | InputEvent.ALT_MASK));
+		debugOption.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK | InputEvent.ALT_MASK));
 		debugOption.addActionListener(this::debugCodeInOpenTab);
 		runMenu.add(debugOption);
 
@@ -189,8 +175,7 @@ public class GUI {
 		runMenu.add(pauseOption);
 
 		stopOption = new JMenuItem("Stop Execution");
-		stopOption.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK | InputEvent.ALT_MASK));
+		stopOption.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_MASK | InputEvent.ALT_MASK));
 		stopOption.setEnabled(false);
 		stopOption.setIcon(STOP_ICON);
 		stopOption.addActionListener(this::stopExecution);
@@ -236,14 +221,14 @@ public class GUI {
 
 		final JSplitPane programExtrasSplitter = new JSplitPane();
 		frame.getContentPane().add(programExtrasSplitter, BorderLayout.CENTER);
-		programExtrasSplitter.setResizeWeight(0.8);
+		programExtrasSplitter.setResizeWeight(0.8); // Start at 80% height
 		programExtrasSplitter.setOrientation(JSplitPane.VERTICAL_SPLIT);
 
 		programTabs = new JTabbedPane(SwingConstants.TOP);
 
 		openNewProgramTab("Program", null);
 
-		extrasTabs = new JTabbedPane(SwingConstants.TOP);
+		final JTabbedPane extrasTabs = new JTabbedPane(SwingConstants.TOP);
 		programExtrasSplitter.setRightComponent(extrasTabs);
 
 		consoleTextArea = new JTextArea();
@@ -258,7 +243,7 @@ public class GUI {
 		variableTable.setFont(CODE_FONT);
 		variableTable.setFillsViewportHeight(true);
 		variableTable.setEnabled(false);
-		variableTable.setModel(new DefaultTableModel(columnNames, 35));
+		variableTable.setModel(new DefaultTableModel(columnNames, 35)); // Arbitrary number of rows (expanded as it goes)
 		variableTable.setRowSelectionAllowed(false);
 
 		final JScrollPane variableScrollPane = new JScrollPane(variableTable);
@@ -283,7 +268,8 @@ public class GUI {
 		lineInfoLabel = new JLabel("Line: 0, Column: 0");
 		codePanel.add(lineInfoLabel, BorderLayout.SOUTH);
 
-		frame.addWindowListener(new WindowAdapter() {
+		frame.addWindowListener(new WindowAdapter()
+		{
 			@Override
 			public void windowClosed(final WindowEvent e) {
 				System.setOut(oldOut); // Restore PrintStream
@@ -293,7 +279,8 @@ public class GUI {
 		});
 
 		// Listener to add variables to table
-		vm.addDebugListener(new DebugListener() {
+		vm.addDebugListener(new DebugListener()
+		{
 			@Override
 			public void beforeExecution(final VirtualMachine vm) {
 				final int numRows = variableTable.getModel().getRowCount();
@@ -317,8 +304,7 @@ public class GUI {
 				if (step && !wasPaused) {
 					vm.pauseExecution();
 					wasPaused = true;
-				} else
-					wasPaused = false;
+				} else wasPaused = false;
 			}
 
 			@Override
@@ -327,6 +313,9 @@ public class GUI {
 				stackTextArea.append("\n");
 
 				final Instruction ins = vm.getCurrentInstruction();
+				// We have to check for a Store instruction so we can update the
+				// varable table. The alternative would be to update the table with all variables
+				// all the time, but this would consume unecessary resources.
 				if (!(ins instanceof Store)) return;
 				final Store store = (Store) ins;
 				final int varIdx = store.getArg();
@@ -352,10 +341,11 @@ public class GUI {
 		text.addCaretListener(e -> {
 			try {
 				final int lineNumber = lineNumberAtCursor();
-				final int column = text.getCaretPosition()
-						- text.getLineStartOffset(lineNumber - 1);
+				final int column = text.getCaretPosition() - text.getLineStartOffset(lineNumber - 1);
 				lineInfoLabel.setText("Line: " + lineNumber + ", Column: " + column);
-			} catch (final Exception ignored) {
+			} catch (final BadLocationException ignored) {
+				// We don't care about the exception, it's not fatal and we cannot
+				// do anything to recover anyways.
 			}
 		});
 
@@ -366,7 +356,7 @@ public class GUI {
 	private Bytecode parseCodeInOpenTab() {
 		final JTextArea codeArea = getCurrentProgramTextArea();
 		if (codeArea == null) return null;
-		List<Token> tokens = null;
+		List<Token> tokens;
 		try {
 			tokens = lexer.tokenize(codeArea.getText());
 		} catch (final LexerException e1) {
@@ -374,7 +364,7 @@ public class GUI {
 			return null;
 		}
 
-		Bytecode result = null;
+		Bytecode result;
 		try {
 			result = parser.parse(tokens);
 		} catch (final ParserException e1) {
@@ -392,17 +382,18 @@ public class GUI {
 	}
 
 	private void addConsoleMessage(final String format, final Object... args) {
-		consoleTextArea.append(String.format(format + "\n", args));
+		consoleTextArea.append(String.format(format, args));
+		consoleTextArea.append("\n");
 	}
 
-	// Use methods as action listeners
+	// Use methods as action listeners. ActionEvent e is present only because it is required for
+	// method reference to work in this case.
 	private void openFile(final ActionEvent e) {
 		final int option = fc.showOpenDialog(frame);
 		if (option == JFileChooser.APPROVE_OPTION) {
 			final File chosen = fc.getSelectedFile();
 			try {
-				openNewProgramTab(chosen.getName(),
-						new String(Files.readAllBytes(chosen.toPath())));
+				openNewProgramTab(chosen.getName(), new String(Files.readAllBytes(chosen.toPath())));
 				programTabs.setSelectedIndex(programTabs.getTabCount() - 1);
 			} catch (final IOException e1) {
 				e1.printStackTrace();
@@ -449,8 +440,7 @@ public class GUI {
 		if (selectedIdx < 0) return;
 		if (selectedIdx == 0 && programTabs.getTabCount() > 1) {
 			programTabs.setSelectedIndex(selectedIdx + 1);
-		} else
-			programTabs.setSelectedIndex(selectedIdx - 1);
+		} else programTabs.setSelectedIndex(selectedIdx - 1);
 		programTabs.removeTabAt(selectedIdx);
 	}
 

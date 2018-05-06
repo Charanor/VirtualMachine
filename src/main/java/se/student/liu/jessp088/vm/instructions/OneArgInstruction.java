@@ -1,6 +1,10 @@
 package se.student.liu.jessp088.vm.instructions;
 
-public abstract class OneArgInstruction extends Instruction {
+/**
+ * Subclass of {@link Instruction} that takes one argument as a parameter.
+ */
+public abstract class OneArgInstruction extends Instruction
+{
 	protected final int arg;
 
 	protected OneArgInstruction(final int arg) {

@@ -12,7 +12,7 @@ public class Stack {
 
 	/** Creates a new Stack object with the specified max stack size.
 	 *
-	 * @param maxStackSize */
+	 * @param maxStackSize the maximum stack size*/
 	public Stack(final int maxStackSize) {
 		stack = new int[maxStackSize];
 	}
@@ -59,17 +59,6 @@ public class Stack {
 		if (size < 1)
 			throw new IndexOutOfBoundsException("Trying to peek from an empty stack!");
 		return stack[size - 1];
-	}
-
-	/** Returns the first value beneath the top of the stack.
-	 *
-	 * @return the value
-	 * @throws IndexOutOfBoundsException
-	 *             if the stack has fewer than 2 elements. */
-	public int deepPeek() throws IndexOutOfBoundsException {
-		if (size < 2) throw new IndexOutOfBoundsException(
-				"Cannot deep peek a stack with fewer than 2 elements!");
-		return stack[size - 2];
 	}
 
 	/** Clears the stack setting the stack pointer to 0. */

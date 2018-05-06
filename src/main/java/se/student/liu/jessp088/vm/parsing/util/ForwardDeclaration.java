@@ -4,6 +4,9 @@ import se.student.liu.jessp088.vm.VMInstruction;
 
 import java.util.Objects;
 
+/**
+ * Placeholder for a forward-declaration of a label (i.e. when a label is used before it is defined).
+ */
 public class ForwardDeclaration implements Comparable<ForwardDeclaration>
 {
 	private final VMInstruction instructionType;
@@ -41,7 +44,7 @@ public class ForwardDeclaration implements Comparable<ForwardDeclaration>
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (o == null || !Objects.equals(getClass(), o.getClass())) return false;
 		final ForwardDeclaration that = (ForwardDeclaration) o;
 		return instrunctionPos == that.instrunctionPos && instructionType == that.instructionType &&
 			   Objects.equals(forwardDeclaration, that.forwardDeclaration);

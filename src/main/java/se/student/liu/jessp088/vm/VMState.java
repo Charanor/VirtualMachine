@@ -19,7 +19,12 @@ public enum VMState {
 	/** The execution was paused by a user. */
 	PAUSE_USER(false, true, false);
 
-	public final boolean running, paused, stopped;
+	/**Is the VirtualMachine running while in this state?*/
+	public final boolean running;
+	/**Is the VirtualMachine paused while in this state?*/
+	public final boolean paused;
+	/**Is the VirtualMachine stopped while in this state?*/
+	public final boolean stopped;
 
 	private VMState(final boolean running, final boolean paused, final boolean stopped) {
 		this.running = running;

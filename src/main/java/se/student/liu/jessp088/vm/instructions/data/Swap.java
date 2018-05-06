@@ -3,7 +3,11 @@ package se.student.liu.jessp088.vm.instructions.data;
 import se.student.liu.jessp088.vm.instructions.Instruction;
 import se.student.liu.jessp088.vm.instructions.InstructionException;
 
-public class Swap extends Instruction {
+/**
+ * Swap the top two values of the stack.
+ */
+public class Swap extends Instruction
+{
 	@Override
 	protected void process() throws InstructionException {
 		final int shallow = pop();

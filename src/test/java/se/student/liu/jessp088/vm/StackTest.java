@@ -5,11 +5,14 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Tests the {@link Stack} class.
+ */
 public class StackTest
 {
 	private static final int MAX_STACK_SIZE = 3;
 
-	private Stack stack;
+	private Stack stack = null;
 
 	@Before
 	public void setUp() {
@@ -21,8 +24,8 @@ public class StackTest
 		stack.push(10);
 		stack.push(3);
 
-		assertEquals(3, stack.peek());
-		assertEquals(10, stack.deepPeek());
+		assertEquals(3, stack.pop());
+		assertEquals(10, stack.peek());
 	}
 
 	@Test

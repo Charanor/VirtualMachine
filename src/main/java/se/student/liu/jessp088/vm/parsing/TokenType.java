@@ -1,5 +1,8 @@
 package se.student.liu.jessp088.vm.parsing;
 
+/**
+ * The different types of tokens recognized by the {@link Lexer}.
+ */
 public enum TokenType {
 	WHITESPACE("[ \t]+", true),
 	COMMENT("//[^\r\n\f]*", true),

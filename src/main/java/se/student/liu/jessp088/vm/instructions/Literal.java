@@ -1,6 +1,10 @@
 package se.student.liu.jessp088.vm.instructions;
 
-public class Literal extends OneArgInstruction {
+/**
+ * Pushes arg1 constant to stack.
+ */
+public class Literal extends OneArgInstruction
+{
 	public Literal(final int arg) {
 		super(arg);
 	}

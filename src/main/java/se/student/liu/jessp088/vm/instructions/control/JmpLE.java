@@ -2,7 +2,11 @@ package se.student.liu.jessp088.vm.instructions.control;
 
 import se.student.liu.jessp088.vm.instructions.InstructionException;
 
-public class JmpLE extends JumpInstruction {
+/**
+ * Jumps to an instruction if the top value of the stack is less than or equal to zero.
+ */
+public class JmpLE extends JumpInstruction
+{
 	public JmpLE(final int arg) {
 		super(arg);
 	}

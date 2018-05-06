@@ -9,7 +9,9 @@ package se.student.liu.jessp088.vm.parsing;
  */
 public class Token
 {
+	/** The type of the token */
 	public final TokenType type;
+	/** The value of the token */
 	public final String value;
 
 	public Token(final TokenType type, final String value) {

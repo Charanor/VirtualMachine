@@ -14,9 +14,12 @@ import se.student.liu.jessp088.vm.parsing.Token;
 import se.student.liu.jessp088.vm.parsing.TokenType;
 import se.student.liu.jessp088.vm.parsing.LexerException;
 
+/**
+ * Tests the {@link Lexer} class.
+ */
 public class LexerTest
 {
-	private static Lexer lexer;
+	private static Lexer lexer = null;
 
 	@BeforeClass
 	public static void setUp() {

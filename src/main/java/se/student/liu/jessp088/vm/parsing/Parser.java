@@ -29,7 +29,7 @@ import se.student.liu.jessp088.vm.parsing.util.ForwardDeclaration;
 
 /**
  * A parser that takes a list of {@link Token} and generates a {@link Bytecode} object that a
- * {@link se.student.liu.jessp088.vm.VirtualMachine} can process. The parser uses recursive-descent LL(1) grammar to parse.
+ * {@link se.student.liu.jessp088.vm.VirtualMachine} can process. The parser is LL(1) based.
  */
 public class Parser
 {
@@ -213,6 +213,7 @@ public class Parser
 		try {
 			instructions.add(supplier.getInstruction(instruction, args));
 		} catch (final IllegalArgumentException e) {
+			// We catch it to re-throw to a more appropriate exception
 			throw new ParserException("Error fetching instruction " + instruction, e);
 		}
 	}

@@ -1,6 +1,5 @@
 package se.student.liu.jessp088.vm.ui;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.swing.JTextArea;
@@ -16,9 +15,9 @@ public class Console extends OutputStream {
 	}
 
 	@Override
-	public void write(final int b) throws IOException {
+	public void write(final int b) {
 		final char c = (char) b;
-		textArea.append("" + c);
+		textArea.append(String.valueOf(c));
 		textArea.setCaretPosition(textArea.getDocument().getLength());
 	}
 }

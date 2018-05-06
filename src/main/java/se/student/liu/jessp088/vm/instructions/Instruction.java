@@ -39,8 +39,17 @@ public abstract class Instruction
 		this.process();
 	}
 
+
 	protected abstract void process() throws InstructionException;
 
+	/**
+	 * Push a value to the {@link Stack}
+	 *
+	 * @param value the value to push
+	 *
+	 * @throws InstructionException if the stack is full
+	 * @see Stack#push(int)
+	 */
 	protected void push(final int value) throws InstructionException {
 		try {
 			stack.push(value);
@@ -49,6 +58,13 @@ public abstract class Instruction
 		}
 	}
 
+	/**
+	 * Pop a value from the {@link Stack}.
+	 *
+	 * @return the poped value
+	 * @throws InstructionException if the stack is empty
+	 * @see Stack#pop()
+	 */
 	protected int pop() throws InstructionException {
 		try {
 			return stack.pop();
@@ -57,6 +73,13 @@ public abstract class Instruction
 		}
 	}
 
+	/**
+	 * Peek from the {@link Stack}.
+	 *
+	 * @return the peeked value
+	 * @throws InstructionException if the stack is empty
+	 * @see Stack#peek()
+	 */
 	protected int peek() throws InstructionException {
 		try {
 			return stack.peek();
@@ -65,50 +88,107 @@ public abstract class Instruction
 		}
 	}
 
-	protected int deepPeek() throws InstructionException {
-		try {
-			return stack.deepPeek();
-		} catch (final IndexOutOfBoundsException e) {
-			throw error(e);
-		}
-	}
-
+	/**
+	 * Expands the size of the stack.
+	 *
+	 * @param size the size to expand
+	 *
+	 * @see Stack#expand(int)
+	 */
 	protected void expandStack(final int size) {
 		stack.expand(size);
 	}
 
+	/**
+	 * Shrinks the size of the stack.
+	 *
+	 * @param size the size to shrink by
+	 *
+	 * @see Stack#shrink(int)
+	 */
 	protected void shrinkStack(final int size) {
 		stack.shrink(size);
 	}
 
+	/**
+	 * Resizes the stack to the specified size.
+	 *
+	 * @param size the size to size to
+	 *
+	 * @see Stack#sizeTo(int)
+	 */
 	protected void sizeStackTo(final int size) {
 		stack.sizeTo(size);
 	}
 
+	/**
+	 * Stores a variable.
+	 *
+	 * @param idx the index of the variable
+	 * @param val the value to store in the variable
+	 *
+	 * @throws InstructionException if something goes wrong.
+	 * @see Variables#store(int, int)
+	 */
 	protected void storeVariable(final int idx, final int val) throws InstructionException {
 		try {
 			variables.store(idx, val);
 		} catch (final IndexOutOfBoundsException e) {
+			// We want to throw our own error to make sure that
+			// the virtual machine understands that something
+			// went wrong while executing an instruction.
 			throw error(e);
 		}
 	}
 
+	/**
+	 * Loads a variable.
+	 *
+	 * @param idx the index of the variable
+	 *
+	 * @return the value the variable has right now
+	 * @throws InstructionException if something goes wrong.
+	 * @see Variables#load(int)
+	 */
 	protected int loadVariable(final int idx) throws InstructionException {
 		try {
 			return variables.load(idx);
 		} catch (final IndexOutOfBoundsException e) {
+			// We want to throw our own error to make sure that
+			// the virtual machine understands that something
+			// went wrong while executing an instruction.
 			throw error(e);
 		}
 	}
 
+	/**
+	 * Returns the current pointer to the instruction.
+	 *
+	 * @return the pointer
+	 * @see Bytecode#getPtr()
+	 */
 	protected int getPtr() {
 		return bytecode.getPtr();
 	}
 
+	/**
+	 * Sets the pointer.
+	 *
+	 * @param ptr the new pointer
+	 *
+	 * @see Bytecode#setPtr(int)
+	 */
 	protected void setPtr(final int ptr) {
 		bytecode.setPtr(ptr);
 	}
 
+	/**
+	 * Re-throws an exception as an {@link InstructionException} to signal that something went wring while executing an instruction.
+	 *
+	 * @param cause the throwable to re-throw
+	 *
+	 * @return the new {@link InstructionException}
+	 */
 	private InstructionException error(final Throwable cause) {
 		return new InstructionException("Error executing instruction %s. Cause: %s", this.getClass().getSimpleName(), cause);
 	}

@@ -2,7 +2,11 @@ package se.student.liu.jessp088.vm.instructions.meta;
 
 import se.student.liu.jessp088.vm.instructions.OneArgInstruction;
 
-public class Malloc extends OneArgInstruction {
+/**
+ * Expands the stack.
+ */
+public class Malloc extends OneArgInstruction
+{
 	public Malloc(final int arg) {
 		super(arg);
 	}

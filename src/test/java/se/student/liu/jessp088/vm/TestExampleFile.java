@@ -17,7 +17,11 @@ import se.student.liu.jessp088.vm.parsing.Token;
 import se.student.liu.jessp088.vm.parsing.LexerException;
 import se.student.liu.jessp088.vm.parsing.ParserException;
 
-public class TestExampleFile {
+/**
+ * Tests the example file shipped with the program.
+ */
+public class TestExampleFile
+{
 	private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
 
 	@Test
@@ -26,8 +30,7 @@ public class TestExampleFile {
 		final Parser parser = new Parser();
 
 		try {
-			final String code = new String(
-					Files.readAllBytes(RESOURCE_DIRECTORY.resolve("count_primes.vm")));
+			final String code = new String(Files.readAllBytes(RESOURCE_DIRECTORY.resolve("count_primes.vm")));
 			final List<Token> tokens = lexer.tokenize(code);
 			final Bytecode result = parser.parse(tokens);
 			final VirtualMachine vm = new DefaultVirtualMachine(16, 1);

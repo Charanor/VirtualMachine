@@ -2,7 +2,11 @@ package se.student.liu.jessp088.vm.instructions.control;
 
 import se.student.liu.jessp088.vm.instructions.InstructionException;
 
-public class JmpGT extends JumpInstruction {
+/**
+ * Jumps to an instruction if the top value of the stack is greater than zero.
+ */
+public class JmpGT extends JumpInstruction
+{
 
 	public JmpGT(final int arg) {
 		super(arg);
