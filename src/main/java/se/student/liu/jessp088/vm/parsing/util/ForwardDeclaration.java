@@ -33,7 +33,7 @@ public class ForwardDeclaration implements Comparable<ForwardDeclaration>
 
 	@Override
 	public String toString() {
-		return String.format("(%s %s @ %s)", instructionType, forwardDeclaration, instrunctionPos);
+		return String.format("(%s %s @ %s)", instructionType, forwardDeclaration, Integer.valueOf(instrunctionPos));
 	}
 
 	@Override
@@ -52,6 +52,7 @@ public class ForwardDeclaration implements Comparable<ForwardDeclaration>
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(instructionType, instrunctionPos, forwardDeclaration);
+		// Built-in standard way to get hash code, so it can't be that much overhead...
+		return Objects.hash(instructionType, Integer.valueOf(instrunctionPos), forwardDeclaration);
 	}
 }

@@ -91,10 +91,10 @@ public class DefaultVirtualMachine implements VirtualMachine
 			if (wasAtBreakpoint) {
 				// We don't want to break on the same line twice
 				wasAtBreakpoint = false;
-				LOGGER.trace("Skipping breakpoint on pointer {} (already executed).", currentCode.getPtr());
+				LOGGER.trace("Skipping breakpoint on pointer {} (already executed).", Integer.valueOf(currentCode.getPtr()));
 			} else if (debug && isBreakpointAt(currentCode.getPtr())) {
 				wasAtBreakpoint = true;
-				LOGGER.debug("Hit breakpoint at pointer {}.", currentCode.getPtr());
+				LOGGER.debug("Hit breakpoint at pointer {}.", Integer.valueOf(currentCode.getPtr()));
 				setState(PAUSE_BREAKPOINT);
 				return;
 			}
@@ -111,12 +111,13 @@ public class DefaultVirtualMachine implements VirtualMachine
 			}
 
 			try {
-				LOGGER.trace("Processing instruction {}: {}.", currentCode.getPtr() - 1, currentInstruction);
+				LOGGER.trace("Processing instruction {}: {}.", Integer.valueOf(currentCode.getPtr() - 1), currentInstruction);
 				currentInstruction.process(stack, code, variables);
 				afterInstruction();
 			} catch (final InstructionException e) {
 				this.error = String
-					.format("Error executing instruction %s on line %s: %s", currentInstruction, getCurrentLineNumber(), e);
+					.format("Error executing instruction %s on line %s: %s", currentInstruction,
+							Integer.valueOf(getCurrentLineNumber()), e);
 				LOGGER.error(error);
 
 				currentCode.setPtr(0);
@@ -209,18 +210,18 @@ public class DefaultVirtualMachine implements VirtualMachine
 	@Override
 	public void addBreakpoint(final int instructionPtr) {
 		if (!isBreakpointAt(instructionPtr)) {
-			LOGGER.trace("Adding breakpoint at {}", instructionPtr);
-			breakpoints.add(instructionPtr);
-		} else LOGGER.trace("Already a breakpoint at {}.", instructionPtr);
+			LOGGER.trace("Adding breakpoint at {}", Integer.valueOf(instructionPtr));
+			breakpoints.add(Integer.valueOf(instructionPtr));
+		} else LOGGER.trace("Already a breakpoint at {}.", Integer.valueOf(instructionPtr));
 	}
 
 	@Override
 	public void removeBreakpoint(final int instructionPtr) {
 		if (isBreakpointAt(instructionPtr)) {
-			LOGGER.trace("Removing breakpoint at {}", instructionPtr);
+			LOGGER.trace("Removing breakpoint at {}", Integer.valueOf(instructionPtr));
 			// Must cast otherwise it uses the wrong remove() method
-			breakpoints.remove((Integer) instructionPtr);
-		} else LOGGER.trace("No breakpoint at {} to remove.", instructionPtr);
+			breakpoints.remove(Integer.valueOf(instructionPtr));
+		} else LOGGER.trace("No breakpoint at {} to remove.", Integer.valueOf(instructionPtr));
 	}
 
 	@Override
@@ -230,7 +231,7 @@ public class DefaultVirtualMachine implements VirtualMachine
 
 	@Override
 	public boolean isBreakpointAt(final int instructionPtr) {
-		return breakpoints.contains(instructionPtr);
+		return breakpoints.contains(Integer.valueOf(instructionPtr));
 	}
 
 	@Override

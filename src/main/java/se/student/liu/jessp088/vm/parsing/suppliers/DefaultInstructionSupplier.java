@@ -33,6 +33,9 @@ import se.student.liu.jessp088.vm.instructions.meta.SizeTo;
  */
 public class DefaultInstructionSupplier implements InstructionSupplier
 {
+	// Complex but pretty clear to me.
+	// Also overly coupled but that's why we have
+	// ReflectionSupplier :)
 	@Override
 	public Instruction getInstruction(final VMInstruction instruction, final int... args) throws IllegalArgumentException
 	{

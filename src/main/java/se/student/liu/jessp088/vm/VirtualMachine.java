@@ -87,6 +87,7 @@ public interface VirtualMachine {
 	}
 
 	/** @return true if the virtual machine previous state was paused; false otherwise. */
+	//Unused. Here for the sake of completeness.
 	default boolean wasPaused() {
 		return getPreviousState().paused;
 	}
@@ -148,6 +149,7 @@ public interface VirtualMachine {
 	 *            the pointer
 	 *
 	 * @return true if there is a breakpoint; false otherwise or if instructionPtr is invalid. */
+	//Unused. Here for the sake of completeness.
 	boolean isBreakpointAt(int instructionPtr);
 
 	/** Gets the current {@link Instruction}. Whether or not the instruction has already been
@@ -160,12 +162,14 @@ public interface VirtualMachine {
 	 * {@link VirtualMachine#getCurrentInstruction()} in a {@link Bytecode} object.
 	 *
 	 * @return the pointer */
+	//Unused. Here for the sake of completeness.
 	int getCurrentInstructionPtr();
 
 	/** Gets the line number of the {@link Instruction} from
 	 * {@link VirtualMachine#getCurrentInstruction()}.
 	 *
 	 * @return the line number */
+	//Unused. Here for the sake of completeness.
 	int getCurrentLineNumber();
 
 	/** Converts an instruction pointer to the line number where the instruction can be found.
@@ -177,6 +181,7 @@ public interface VirtualMachine {
 	 * @throws IllegalArgumentException
 	 *             if there is no line corresponding to the pointer <b>or</b> if the pointer is
 	 *             invalid. */
+	//Unused. Here for the sake of completeness.
 	int convertPtrToLine(int ptr) throws IllegalArgumentException;
 
 	/** Converts a line number to the instruction pointer found on the line number.
@@ -201,6 +206,7 @@ public interface VirtualMachine {
 	 * return value is <b>implementation specific</b>.
 	 *
 	 * @return if the {@link VirtualMachine} currently has any errors. */
+	//Unused. Here for the sake of completeness.
 	boolean hasErrors();
 
 	/** Returns a copy of the current {@link Stack} instance contained in this

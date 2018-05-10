@@ -54,6 +54,7 @@ public abstract class Instruction
 		try {
 			stack.push(value);
 		} catch (final IndexOutOfBoundsException e) {
+			// We catch it to re-throw to a more appropriate exception
 			throw error(e);
 		}
 	}
@@ -69,6 +70,7 @@ public abstract class Instruction
 		try {
 			return stack.pop();
 		} catch (final IndexOutOfBoundsException e) {
+			// We catch it to re-throw to a more appropriate exception
 			throw error(e);
 		}
 	}
@@ -84,6 +86,7 @@ public abstract class Instruction
 		try {
 			return stack.peek();
 		} catch (final IndexOutOfBoundsException e) {
+			// We catch it to re-throw to a more appropriate exception
 			throw error(e);
 		}
 	}

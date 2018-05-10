@@ -2,7 +2,6 @@ package se.student.liu.jessp088.vm;
 
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 /**
  * This class holds key-value pairs of variables where both the keys and the values are integers.
@@ -66,20 +65,6 @@ public class Variables implements Iterable<Integer>
 
 	@Override
 	public Iterator<Integer> iterator() {
-		return new Iterator<Integer>()
-		{
-			private int idx = 0;
-
-			@Override
-			public boolean hasNext() {
-				return idx < variables.length;
-			}
-
-			@Override
-			public Integer next() {
-				if (idx >= variables.length) throw new NoSuchElementException("End of iterator.");
-				return variables[idx++];
-			}
-		};
+		return Arrays.stream(variables).iterator();
 	}
 }

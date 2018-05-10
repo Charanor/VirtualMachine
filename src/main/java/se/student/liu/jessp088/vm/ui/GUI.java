@@ -62,6 +62,7 @@ public class GUI
 
 	private static final int WINDOW_WIDTH = 820;
 	private static final int WINDOW_HEIGHT = 540;
+	private static final double PERCENT_HEIGHT = 0.8;
 
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -83,6 +84,7 @@ public class GUI
 	private JMenuItem stopOption;
 	private JTextArea stackTextArea;
 	private JLabel lineInfoLabel;
+	private JSplitPane programExtrasSplitter;
 
 	/** Launch the application. */
 	public static void main(final String[] args) {
@@ -120,6 +122,100 @@ public class GUI
 		fc.setFileFilter(new FileNameExtensionFilter(".vm files", "vm"));
 		fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
 
+		setupMenuBar();
+
+		programExtrasSplitter = new JSplitPane();
+		frame.getContentPane().add(programExtrasSplitter, BorderLayout.CENTER);
+		programExtrasSplitter.setResizeWeight(PERCENT_HEIGHT);
+		programExtrasSplitter.setOrientation(JSplitPane.VERTICAL_SPLIT);
+
+		programTabs = new JTabbedPane(SwingConstants.TOP);
+
+		openNewProgramTab("Program", null);
+
+		setupExtrasTab();
+
+		// Redirect logging to GUI console
+		// Closed below in the WindowListener
+		final PrintStream newOut = new PrintStream(new Console(consoleTextArea));
+		final PrintStream oldOut = System.out;
+		System.setOut(newOut);
+
+		final JPanel codePanel = new JPanel();
+		programExtrasSplitter.setLeftComponent(codePanel);
+		codePanel.setLayout(new BorderLayout(0, 0));
+		codePanel.add(programTabs);
+
+		lineInfoLabel = new JLabel("Line: 0, Column: 0");
+		codePanel.add(lineInfoLabel, BorderLayout.SOUTH);
+
+		frame.addWindowListener(new WindowAdapter()
+		{
+			@Override
+			public void windowClosed(final WindowEvent e) {
+				System.setOut(oldOut); // Restore PrintStream
+				newOut.close(); // Close the new PrintStream
+				e.getWindow().dispose(); // Dispose of the window
+			}
+		});
+
+		// Listener to add variables to table
+		vm.addDebugListener(new DebugListener()
+		{
+			@Override
+			public void beforeExecution(final VirtualMachine vm) {
+				final int numRows = variableTable.getModel().getRowCount();
+				for (int i = 0; i < numRows; i++) {
+					variableTable.getModel().setValueAt(null, i, 0);
+					variableTable.getModel().setValueAt(null, i, 1);
+				}
+
+				stackTextArea.setText("");
+			}
+
+			@Override
+			public void afterExecution(final VirtualMachine vm) {
+				resumeOption.setEnabled(false);
+				pauseOption.setEnabled(false);
+				stopOption.setEnabled(false);
+			}
+
+			@Override
+			public void beforeInstruction(final VirtualMachine vm) {
+				if (step && !wasPaused) {
+					vm.pauseExecution();
+					wasPaused = true;
+				} else wasPaused = false;
+			}
+
+			@Override
+			public void afterInstruction(final VirtualMachine vm) {
+				stackTextArea.append(vm.getStack().toString());
+				stackTextArea.append("\n");
+
+				final Instruction ins = vm.getCurrentInstruction();
+				// We have to check for a Store instruction so we can update the
+				// varable table. The alternative would be to update the table with all variables
+				// all the time, but this would consume unecessary resources.
+				if (!(ins instanceof Store)) return;
+				final Store store = (Store) ins;
+				final int varIdx = store.getArg();
+
+				final Variables variables = vm.getVariables();
+				variableTable.getModel().setValueAt(Integer.valueOf(varIdx), varIdx, 0);
+				variableTable.getModel().setValueAt(Integer.valueOf(variables.load(varIdx)), varIdx, 1);
+			}
+
+			@Override
+			public void onStateChanged(final VirtualMachine vm) {
+				resumeOption.setEnabled(vm.isPaused());
+				pauseOption.setEnabled(vm.isRunning());
+				stopOption.setEnabled(vm.isPaused() || vm.isRunning());
+			}
+		});
+	}
+
+	private void setupMenuBar() {
 		final JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
 
@@ -216,18 +312,9 @@ public class GUI
 		consoleMenuOption.add(autoClearOption);
 		clearConsoleOption.addActionListener(e -> consoleTextArea.setText(""));
 		debugMenu.add(toggleStepOption);
+	}
 
-		final Object[] columnNames = new Object[] { "Variable", "Value" };
-
-		final JSplitPane programExtrasSplitter = new JSplitPane();
-		frame.getContentPane().add(programExtrasSplitter, BorderLayout.CENTER);
-		programExtrasSplitter.setResizeWeight(0.8); // Start at 80% height
-		programExtrasSplitter.setOrientation(JSplitPane.VERTICAL_SPLIT);
-
-		programTabs = new JTabbedPane(SwingConstants.TOP);
-
-		openNewProgramTab("Program", null);
-
+	private void setupExtrasTab() {
 		final JTabbedPane extrasTabs = new JTabbedPane(SwingConstants.TOP);
 		programExtrasSplitter.setRightComponent(extrasTabs);
 
@@ -239,6 +326,8 @@ public class GUI
 		extrasTabs.addTab("New tab", null, consoleScrollPane, null);
 		extrasTabs.addTab("Console", CONSOLE_ICON, consoleScrollPane, null);
 
+
+		final Object[] columnNames = new Object[] { "Variable", "Value" };
 		variableTable = new JTable();
 		variableTable.setFont(CODE_FONT);
 		variableTable.setFillsViewportHeight(true);
@@ -253,85 +342,6 @@ public class GUI
 		stackTextArea.setEditable(false);
 		final JScrollPane stackScrollPane = new JScrollPane(stackTextArea);
 		extrasTabs.addTab("Stack", STACK_ICON, stackScrollPane, null);
-
-		// Redirect logging to GUI console
-		// Closed below in the WindowListener
-		final PrintStream newOut = new PrintStream(new Console(consoleTextArea));
-		final PrintStream oldOut = System.out;
-		System.setOut(newOut);
-
-		final JPanel codePanel = new JPanel();
-		programExtrasSplitter.setLeftComponent(codePanel);
-		codePanel.setLayout(new BorderLayout(0, 0));
-		codePanel.add(programTabs);
-
-		lineInfoLabel = new JLabel("Line: 0, Column: 0");
-		codePanel.add(lineInfoLabel, BorderLayout.SOUTH);
-
-		frame.addWindowListener(new WindowAdapter()
-		{
-			@Override
-			public void windowClosed(final WindowEvent e) {
-				System.setOut(oldOut); // Restore PrintStream
-				newOut.close(); // Close the new PrintStream
-				e.getWindow().dispose(); // Dispose of the window
-			}
-		});
-
-		// Listener to add variables to table
-		vm.addDebugListener(new DebugListener()
-		{
-			@Override
-			public void beforeExecution(final VirtualMachine vm) {
-				final int numRows = variableTable.getModel().getRowCount();
-				for (int i = 0; i < numRows; i++) {
-					variableTable.getModel().setValueAt(null, i, 0);
-					variableTable.getModel().setValueAt(null, i, 1);
-				}
-
-				stackTextArea.setText("");
-			}
-
-			@Override
-			public void afterExecution(final VirtualMachine vm) {
-				resumeOption.setEnabled(false);
-				pauseOption.setEnabled(false);
-				stopOption.setEnabled(false);
-			}
-
-			@Override
-			public void beforeInstruction(final VirtualMachine vm) {
-				if (step && !wasPaused) {
-					vm.pauseExecution();
-					wasPaused = true;
-				} else wasPaused = false;
-			}
-
-			@Override
-			public void afterInstruction(final VirtualMachine vm) {
-				stackTextArea.append(vm.getStack().toString());
-				stackTextArea.append("\n");
-
-				final Instruction ins = vm.getCurrentInstruction();
-				// We have to check for a Store instruction so we can update the
-				// varable table. The alternative would be to update the table with all variables
-				// all the time, but this would consume unecessary resources.
-				if (!(ins instanceof Store)) return;
-				final Store store = (Store) ins;
-				final int varIdx = store.getArg();
-
-				final Variables variables = vm.getVariables();
-				variableTable.getModel().setValueAt(varIdx, varIdx, 0);
-				variableTable.getModel().setValueAt(variables.load(varIdx), varIdx, 1);
-			}
-
-			@Override
-			public void onStateChanged(final VirtualMachine vm) {
-				resumeOption.setEnabled(vm.isPaused());
-				pauseOption.setEnabled(vm.isRunning());
-				stopOption.setEnabled(vm.isPaused() || vm.isRunning());
-			}
-		});
 	}
 
 	private void openNewProgramTab(final String tabName, final String tabContents) {
@@ -386,8 +396,9 @@ public class GUI
 		consoleTextArea.append("\n");
 	}
 
-	// Use methods as action listeners. ActionEvent e is present only because it is required for
-	// method reference to work in this case.
+	////////// Use methods as action listeners. ActionEvent e is present only because it is required for
+	////////// method reference to work in this case.
+
 	private void openFile(final ActionEvent e) {
 		final int option = fc.showOpenDialog(frame);
 		if (option == JFileChooser.APPROVE_OPTION) {
@@ -452,7 +463,7 @@ public class GUI
 		}
 
 		vm.addBreakpoint(vm.convertLineToPtr(lineNumber));
-		addConsoleMessage("Setting breakpoint at line %s.", lineNumber);
+		addConsoleMessage("Setting breakpoint at line %s.", Integer.valueOf(lineNumber));
 	}
 
 	private void removeBreakpointAtCursor(final ActionEvent e) {
@@ -463,7 +474,7 @@ public class GUI
 		}
 
 		vm.removeBreakpoint(vm.convertLineToPtr(lineNumber));
-		addConsoleMessage("Removing breakpoint at line %s.", lineNumber);
+		addConsoleMessage("Removing breakpoint at line %s.", Integer.valueOf(lineNumber));
 	}
 
 	private int lineNumberAtCursor() {

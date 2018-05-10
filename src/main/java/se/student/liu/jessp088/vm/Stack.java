@@ -38,7 +38,7 @@ public class Stack {
 	public void push(final int value) throws IndexOutOfBoundsException {
 		if (size >= stack.length)
 			throw new IndexOutOfBoundsException("Trying to push past max stack size!");
-		stack[size++] = value;
+		stack[size++] = value; // Set value then increment
 	}
 
 	/** Remove and return the top value of the stack.
@@ -49,7 +49,7 @@ public class Stack {
 	public int pop() throws IndexOutOfBoundsException {
 		if (size <= 0)
 			throw new IndexOutOfBoundsException("Trying to pop from an empty stack!");
-		return stack[--size];
+		return stack[--size]; // Decrement then return value
 	}
 
 	/** Returns the top value of the stack without removing it.
@@ -127,8 +127,9 @@ public class Stack {
 	 * <code>[0x05, 0x0A, 0xFC]</code>.
 	 *
 	 * @return the string representation. */
+	// Unused. Can be useful in debugging or if you want a different representation.
 	public String toHexString() {
-		return IntStream.of(stack).limit(size).mapToObj(v -> String.format("0x%02X", v))
+		return IntStream.of(stack).limit(size).mapToObj(v -> String.format("0x%02X", Integer.valueOf(v)))
 				.collect(Collectors.toList()).toString();
 	}
 }

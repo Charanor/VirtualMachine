@@ -36,7 +36,7 @@ public class Bytecode
 	 */
 	public Instruction next() throws NoSuchElementException {
 		if (!hasNext()) throw new NoSuchElementException("End of bytecode");
-		return instructions.get(ptr++);
+		return instructions.get(ptr++); //Return then increment
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class Bytecode
 	 * @return the line number
 	 */
 	public int toLineNumber(final int ptr) {
-		final Integer val = ptrToLine.get(ptr);
+		final Integer val = ptrToLine.get(Integer.valueOf(ptr));
 		if (val == null) throw new IllegalArgumentException("No line number for instruction pointer " + ptr);
 		return val;
 	}

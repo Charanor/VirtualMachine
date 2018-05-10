@@ -12,6 +12,7 @@ public interface DebugListener
 	 *
 	 * @param vm the virtual machine
 	 */
+	// Unused. Here for the sake of completeness.
 	void beforeExecution(VirtualMachine vm);
 
 	/**
@@ -21,6 +22,7 @@ public interface DebugListener
 	 *
 	 * @param vm the virtual machine
 	 */
+	// Unused. Here for the sake of completeness.
 	void afterExecution(VirtualMachine vm);
 
 	/**

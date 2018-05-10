@@ -20,7 +20,7 @@ import se.student.liu.jessp088.vm.parsing.ParserException;
 /**
  * Tests the example file shipped with the program.
  */
-public class TestExampleFile
+public class ExampleFileTest
 {
 	private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
 

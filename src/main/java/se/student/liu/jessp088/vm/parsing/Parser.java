@@ -147,15 +147,15 @@ public class Parser
 				if (!labels.containsKey(label)) {
 					forwardDeclarations.add(new ForwardDeclaration(instruction, instructionPtr, label));
 				}
-				final float instructionIdx = labels.getOrDefault(label, INVALID_INDEX);
-				args.add(instructionIdx);
+				final float instructionIdx = labels.getOrDefault(label, Integer.valueOf(INVALID_INDEX));
+				args.add(Float.valueOf(instructionIdx));
 
 			} else if (nextTypeIs(NUMBER)) {
 				final float number = Integer.decode(next.value);
-				args.add(number);
+				args.add(Float.valueOf(number));
 			} else {
 				final float value = taggedId();
-				args.add(value);
+				args.add(Float.valueOf(value));
 			}
 			next();
 		}
@@ -208,7 +208,8 @@ public class Parser
 	private void addInstruction(final VMInstruction instruction, final int... args) throws ParserException {
 		if (args.length != instruction.numArguments) {
 			final String format = "Invalid number of arguments for instruction %s on line %s. Expected %s got %s";
-			throw new ParserException(format, instruction, lineNumber, instruction.numArguments, args.length);
+			throw new ParserException(format, instruction, Integer.valueOf(lineNumber),
+									  Integer.valueOf(instruction.numArguments), Integer.valueOf(args.length));
 		}
 		try {
 			instructions.add(supplier.getInstruction(instruction, args));
@@ -219,24 +220,25 @@ public class Parser
 	}
 
 	private void instructionProcessed() {
-		ptrToLine.put(instructionPtr, lineNumber);
+		ptrToLine.put(Integer.valueOf(instructionPtr), Integer.valueOf(lineNumber));
 		instructionPtr++;
 	}
 
 	private void createLabel(final String label) throws ParserException {
-		if (labels.containsKey(label)) throw new ParserException("Label %s on line %s already defined!", label, lineNumber);
-		labels.put(label, instructionPtr);
+		if (labels.containsKey(label)) throw new ParserException("Label %s on line %s already defined!", label,
+																 Integer.valueOf(lineNumber));
+		labels.put(label, Integer.valueOf(instructionPtr));
 	}
 
 	private void defineNew(final String name, final int value) throws ParserException {
 		if (definitions.containsKey(name))
-			throw new ParserException("Constant %s on line %s already defined!", name, lineNumber);
-		definitions.put(name, value);
+			throw new ParserException("Constant %s on line %s already defined!", name, Integer.valueOf(lineNumber));
+		definitions.put(name, Integer.valueOf(value));
 	}
 
 	private int getConstant(final String name) throws ParserException {
 		if (!definitions.containsKey(name))
-			throw new ParserException("Constant %s on line %s has not been defined!", name, lineNumber);
+			throw new ParserException("Constant %s on line %s has not been defined!", name, Integer.valueOf(lineNumber));
 		return definitions.get(name);
 	}
 
@@ -275,7 +277,7 @@ public class Parser
 	private void ensureNextType(final TokenType t) throws ParserException {
 		if (next == null) throw new ParserException("Unexpected EOF! Expected token %s", t);
 		if (!nextTypeIs(t))
-			throw new ParserException("Expected token on line %s. Expected %s got %s", lineNumber, t, next.type);
+			throw new ParserException("Expected token on line %s. Expected %s got %s", Integer.valueOf(lineNumber), t, next.type);
 	}
 
 	/**

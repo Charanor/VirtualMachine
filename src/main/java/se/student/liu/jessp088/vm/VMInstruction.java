@@ -30,6 +30,10 @@ import se.student.liu.jessp088.vm.instructions.meta.SizeTo;
 /** All instructions that the VM can process.
  *
  * @author Charanor */
+
+// There is no individual javadoc because these are just
+// names of the instructions. For the documentation on how these
+// instructions work please see the "Language Specification.docx" file.
 public enum VMInstruction {
 	// Arithmetic instructions
 	LITERAL(1, Literal.class),
