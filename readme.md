@@ -9,7 +9,7 @@ The name 'bytecode' sounds catchy and "tech-y" though so it stuck :)
 
 ## Running code on the virtual machine.
 Running code on the virtual machine is easy:
-```
+```java
 Lexer lexer = new Lexer();
 Parser parser = new Parser();
 
