@@ -29,7 +29,7 @@ import se.student.liu.jessp088.vm.parsing.util.ForwardDeclaration;
 
 /**
  * A parser that takes a list of {@link Token} and generates a {@link Bytecode} object that a
- * {@link se.student.liu.jessp088.vm.VirtualMachine} can process. The parser is LL(1) based.
+ * {@link se.student.liu.jessp088.vm.VirtualMachine} can process.
  */
 public class Parser
 {
