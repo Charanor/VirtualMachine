@@ -58,7 +58,7 @@ Text file describing the tokens the Lexer uses and the rules the Parser follows.
 This file contains some example code that counts the number of primes from 1-1000. 
 The Java code equivalent is also present in that file, in case the bytecode is confusing.
 
-**Bad code:** *VMInstruction.java*. Personally I dislike how coupled this enum is to the different `Instruction` classes and the `ReflectionSupplier` class. 
+**What I would change:** *VMInstruction.java*. Personally I dislike how coupled this enum is to the different `Instruction` classes and the `ReflectionSupplier` class. 
 During development I thought about some different ideas and one of them was annotation pre-processing which would look something like this:
 ```java
 @LinkVMInstruction("MyInstruction")
